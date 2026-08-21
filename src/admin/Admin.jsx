@@ -341,15 +341,27 @@ function DeployStatus({ credentials, deploy, onUpdate }) {
     let attempts = 0
 
     const poll = async () => {
-      if (cancelled || attempts++ > 60) return
-      const run = await latestRun({ ...credentials, branch: credentials.branch })
       if (cancelled) return
+      if (attempts++ > 60) {
+        onUpdate(current => ({ ...current, gaveUp: true }))
+        return
+      }
+
+      const result = await latestRun({ ...credentials, branch: credentials.branch })
+      if (cancelled) return
+
+      // No point asking again — the token will not grow the Actions scope
+      // while the page is open.
+      if (result.state === 'unavailable') {
+        onUpdate(current => ({ ...current, unavailable: true }))
+        return
+      }
 
       // Ignore runs from before this commit — the workflow takes a few seconds
       // to be queued, and until then the newest run is still the previous one.
-      if (run?.sha === deploy.commitSha) {
-        onUpdate(current => ({ ...current, run }))
-        if (run.status === 'completed') return
+      if (result.state === 'found' && result.run.sha === deploy.commitSha) {
+        onUpdate(current => ({ ...current, run: result.run }))
+        if (result.run.status === 'completed') return
       }
       timer = setTimeout(poll, 5000)
     }
@@ -361,17 +373,23 @@ function DeployStatus({ credentials, deploy, onUpdate }) {
     }
   }, [credentials, deploy.commitSha, onUpdate])
 
-  const { run } = deploy
+  const { run, unavailable, gaveUp } = deploy
   const done = run?.status === 'completed'
   const failed = done && run.conclusion !== 'success'
+  // Nothing is still in flight once we have stopped watching.
+  const settled = done || unavailable || gaveUp
 
-  const text = !run
-    ? 'Saved. Waiting for the deploy to start…'
-    : done
-      ? failed
-        ? `Deploy ${run.conclusion}. The change is committed but not live.`
-        : 'Deployed. Your changes are live — hard-refresh the site to see them.'
-      : 'Saved. Building and deploying…'
+  const text = unavailable
+    ? 'Saved and committed. The deploy is running, but this token cannot read Actions — add "Actions: Read-only" to track it here.'
+    : gaveUp
+      ? 'Saved and committed, but the deploy is taking longer than expected. Check the run on GitHub.'
+      : !run
+        ? 'Saved. Waiting for the deploy to start…'
+        : done
+          ? failed
+            ? `Deploy ${run.conclusion}. The change is committed but not live.`
+            : 'Deployed. Your changes are live — hard-refresh the site to see them.'
+          : 'Saved. Building and deploying…'
 
   const tone = failed
     ? 'border-destructive/40 bg-destructive/10 text-destructive'
@@ -383,6 +401,8 @@ function DeployStatus({ credentials, deploy, onUpdate }) {
         <AlertCircle className="size-4 shrink-0" />
       ) : done ? (
         <CheckCircle2 className="size-4 shrink-0" />
+      ) : settled ? (
+        <AlertCircle className="size-4 shrink-0" />
       ) : (
         <Loader2 className="size-4 shrink-0 animate-spin" />
       )}
