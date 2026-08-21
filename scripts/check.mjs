@@ -11,7 +11,12 @@ import { dirname, join } from 'node:path'
 
 import { setIn, getIn, moveItem, removeItem, addItem } from '../src/admin/immutable.js'
 import { encodeText, decodeText, encodeBytes } from '../src/admin/github.js'
-import { buildThemeCss, buildModeScript } from '../src/lib/theme.js'
+import {
+  buildThemeCss,
+  buildModeScript,
+  isSafeColor,
+  normalizeMode,
+} from '../src/lib/theme.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const read = p => readFileSync(join(root, p), 'utf8')
@@ -125,6 +130,55 @@ check('the mode script is valid JS for each mode', () => {
     assert.doesNotThrow(() => new Function(src), `mode ${mode}`)
     assert.ok(src.includes(JSON.stringify(mode)))
   }
+})
+
+console.log('\nhostile content is neutralised')
+
+// site.json is written by the admin panel, whose colour fields accept free
+// text, and its values are interpolated into raw <style> and <script> tags.
+// These guard the sanitising added after a review flagged the injection path.
+
+check('colour values that could close the style tag are refused', () => {
+  for (const good of ['#fff', '#ffffff', '#ffffffaa', 'rgb(255 0 0)', 'oklch(0.5 0.2 30)', 'red']) {
+    assert.ok(isSafeColor(good), `${good} should be allowed`)
+  }
+  for (const bad of [
+    '#fff</style><script>alert(1)</script>',
+    'red;}body{display:none}',
+    'url(javascript:alert(1))',
+    '',
+    null,
+  ]) {
+    assert.ok(!isSafeColor(bad), `${JSON.stringify(bad)} should be refused`)
+  }
+})
+
+check('an unsafe colour is dropped without taking its neighbours with it', () => {
+  const css = buildThemeCss({
+    mode: 'light',
+    font: 'geist',
+    radius: 0.5,
+    colors: { light: { background: '#fff</style><script>x</script>', primary: '#00ff00' }, dark: {} },
+  })
+  assert.ok(!css.includes('</style>'), 'must not break out of the style element')
+  assert.ok(!css.includes('<script'), 'must not emit markup')
+  assert.match(css, /--primary:#00ff00/, 'the valid token beside it should survive')
+})
+
+check('a non-finite radius is dropped rather than emitted', () => {
+  for (const radius of [NaN, Infinity, 'big', null]) {
+    assert.ok(!buildThemeCss({ ...site.theme, radius }).includes('--radius:'), String(radius))
+  }
+  assert.match(buildThemeCss({ ...site.theme, radius: 1 }), /--radius:1rem/)
+})
+
+check('the mode is narrowed before it reaches the inline script', () => {
+  assert.equal(normalizeMode('</script><script>alert(1)</script>'), 'system')
+  assert.equal(normalizeMode(undefined), 'system')
+  for (const mode of ['light', 'dark', 'system']) assert.equal(normalizeMode(mode), mode)
+  // JSON string quoting does not escape '/', so narrowing is what stops a
+  // hand-edited mode from closing the script element.
+  assert.ok(!buildModeScript('</script><script>alert(1)</script>').includes('</script>'))
 })
 
 console.log('\ncontent file')

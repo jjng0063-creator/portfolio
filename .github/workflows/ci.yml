@@ -1,0 +1,33 @@
+name: CI
+
+# deploy.yml only runs on pushes to main, so until now a pull request got no
+# automated verification at all. This gates PRs on the same checks the deploy
+# runs, catching problems before they reach main rather than during a deploy.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+
+      # Content is written by the admin panel rather than by hand, so validate
+      # it: malformed site.json, or a section pointing at a component that does
+      # not exist, should fail here.
+      - run: npm run check
+
+      - run: npm run build

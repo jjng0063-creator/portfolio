@@ -59,12 +59,27 @@ const DERIVED = [
   ['mutedForeground', '--ring'],
 ]
 
+/**
+ * Colour values reach here from a free-text field in the admin panel and are
+ * interpolated into a raw <style> block, so an unchecked value could close the
+ * tag and inject markup into every page. Rather than escape (there is no
+ * escaping inside <style>), only shapes that are actually colours are allowed
+ * through; anything else is dropped and the stylesheet default stands.
+ */
+const SAFE_COLOR =
+  /^(#[0-9a-f]{3,8}|[a-z]+|[a-z]+\([0-9a-z%.,\s/+-]*\))$/i
+
+export const isSafeColor = value => typeof value === 'string' && SAFE_COLOR.test(value.trim())
+
 const declarations = colors => {
-  const out = COLOR_TOKENS.filter(t => colors?.[t.key]).map(
-    t => `${t.cssVar}:${colors[t.key]}`
-  )
+  const out = []
+  for (const token of COLOR_TOKENS) {
+    const value = colors?.[token.key]
+    if (isSafeColor(value)) out.push(`${token.cssVar}:${value.trim()}`)
+  }
   for (const [from, cssVar] of DERIVED) {
-    if (colors?.[from]) out.push(`${cssVar}:${colors[from]}`)
+    const value = colors?.[from]
+    if (isSafeColor(value)) out.push(`${cssVar}:${value.trim()}`)
   }
   return out
 }
@@ -86,7 +101,9 @@ export function buildThemeCss(theme) {
   const light = declarations(theme.colors?.light)
   const dark = declarations(theme.colors?.dark)
 
-  if (typeof theme.radius === 'number') light.push(`--radius:${theme.radius}rem`)
+  // Number.isFinite, not typeof: a hand-edited NaN or Infinity would emit an
+  // invalid declaration that takes the whole rule down with it.
+  if (Number.isFinite(theme.radius)) light.push(`--radius:${theme.radius}rem`)
 
   return [
     light.length ? `:root:root{${light.join(';')}}` : '',
@@ -101,12 +118,21 @@ export function buildThemeCss(theme) {
     .join('')
 }
 
+/** The only values the mode may take; anything else falls back to 'system'. */
+export const MODES = ['light', 'dark', 'system']
+
+export const normalizeMode = mode => (MODES.includes(mode) ? mode : 'system')
+
 /**
  * The <script> that picks light or dark before first paint. Inlined into
  * index.html ahead of the stylesheet, so the page never flashes the wrong mode.
+ *
+ * The mode is narrowed to the three known values rather than escaped: JSON
+ * string quoting does not escape '/', so a hand-edited '</script>' would
+ * otherwise close the tag and inject markup.
  */
 export function buildModeScript(mode) {
-  return `(function(){try{var m=${JSON.stringify(mode ?? 'system')};var d=m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`
+  return `(function(){try{var m=${JSON.stringify(normalizeMode(mode))};var d=m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`
 }
 
 /**
