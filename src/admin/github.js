@@ -152,26 +152,44 @@ export async function getFileSha({ token, owner, repo, path, ref }) {
 /**
  * The most recent Actions run on a branch — this is how the editor shows
  * whether the deploy triggered by your save has finished.
- * Returns null when the token cannot read Actions, which is not fatal: the
- * save still worked, we just cannot report on the deploy.
+ *
+ * Reading Actions is an optional permission, so the caller has to be able to
+ * tell "you cannot see this" apart from "it has not started yet". Collapsing
+ * both to null made a tightly-scoped token look like a hung deploy: the save
+ * had worked, but the panel sat on "waiting to start" until it gave up.
+ *
+ * Returns one of:
+ *   { state: 'unavailable' }  the token cannot read Actions — stop asking
+ *   { state: 'pending' }      nothing to report yet, or a transient failure
+ *   { state: 'found', run }   a run for this branch
  */
 export async function latestRun({ token, owner, repo, branch }) {
+  let data
   try {
-    const data = await request(
+    data = await request(
       token,
       `/repos/${owner}/${repo}/actions/runs?branch=${encodeURIComponent(branch)}&per_page=1`
     )
-    const run = data.workflow_runs?.[0]
-    if (!run) return null
-    return {
+  } catch (error) {
+    // 403: the token has no Actions scope. 404: Actions is disabled, or the
+    // token cannot see the repository's workflows. Neither improves by
+    // retrying. Anything else (network blip, 5xx) is worth another go.
+    if (error.status === 403 || error.status === 404) return { state: 'unavailable' }
+    return { state: 'pending' }
+  }
+
+  const run = data.workflow_runs?.[0]
+  if (!run) return { state: 'pending' }
+
+  return {
+    state: 'found',
+    run: {
       id: run.id,
       status: run.status, // queued | in_progress | completed
       conclusion: run.conclusion, // success | failure | cancelled | ...
       url: run.html_url,
       sha: run.head_sha,
       createdAt: run.created_at,
-    }
-  } catch {
-    return null
+    },
   }
 }
