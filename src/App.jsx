@@ -1,11 +1,11 @@
 import Nav from '@/components/Nav'
 import Hero from '@/components/sections/Hero'
-import About from '@/components/sections/About'
-import Education from '@/components/sections/Education'
-import Experience from '@/components/sections/Experience'
-import Projects from '@/components/sections/Projects'
-import Skills from '@/components/sections/Skills'
-import Contact from '@/components/sections/Contact'
+import { SECTION_COMPONENTS } from '@/components/sections'
+import { sections } from '@/data/profile'
+
+/** '01 — About'. Numbered by position, so reordering renumbers automatically. */
+const eyebrowFor = (label, index) =>
+  label ? `${String(index + 1).padStart(2, '0')} — ${label}` : ''
 
 export default function App() {
   return (
@@ -13,12 +13,19 @@ export default function App() {
       <Nav />
       <main>
         <Hero />
-        <About />
-        <Education />
-        <Experience />
-        <Projects />
-        <Skills />
-        <Contact />
+        {sections.map((section, i) => {
+          const Component = SECTION_COMPONENTS[section.component]
+          if (!Component) return null
+          return (
+            <Component
+              key={section.id}
+              id={section.id}
+              eyebrow={eyebrowFor(section.eyebrow, i)}
+              title={section.title}
+              subtitle={section.subtitle}
+            />
+          )
+        })}
       </main>
     </div>
   )

@@ -3,10 +3,12 @@ import SectionHeading from '@/components/SectionHeading'
 import { Badge } from '@/components/ui/badge'
 import { skills } from '@/data/profile'
 
-export default function Skills() {
+export default function Skills({ id, eyebrow, title, subtitle }) {
   return (
-    <Section id="skills">
-      <SectionHeading eyebrow="05 — Skills" title="What I work with" />
+    <Section id={id}>
+      <SectionHeading eyebrow={eyebrow} title={title}>
+        {subtitle}
+      </SectionHeading>
 
       <div className="grid gap-8 sm:grid-cols-2">
         {skills.map(g => (

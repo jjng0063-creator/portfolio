@@ -10,13 +10,19 @@
 
 The site is fully assembled and builds cleanly. All seven sections render from a
 single content file, and the custom projects carousel is finished. It is live on
-GitHub Pages and redeploys on every push to `main`. What remains is content
-polish — photo, résumé, project links, and an OG image.
+GitHub Pages and redeploys on every push to `main`.
+
+It now has an admin panel at `/admin.html`: content, theme, section order and
+page metadata are all editable in a browser and saved as commits, with no
+hardcoded strings left in any component. What remains is content polish — photo,
+résumé, project links, and an OG image, all of which can now be done through the
+panel rather than in code.
 
 | Area | State |
 | --- | --- |
 | Scaffold (Vite 8 + React 19 + Tailwind v4) | Done |
-| Content layer (`src/data/profile.js`) | Done — populated from the Jan 2027 résumé |
+| Content layer (`src/data/site.json`) | Done — populated from the Jan 2027 résumé |
+| Admin panel (`/admin.html`) | Done — content, theme, sections, metadata, uploads |
 | Page sections (Hero → Contact) | Done — all 7 built |
 | `SkewedCarousel` 3D projects carousel | Done — 429 lines, GSAP-driven |
 | shadcn/ui component set | Done — badge, button, card, separator |
@@ -35,9 +41,14 @@ polish — photo, résumé, project links, and an OG image.
 - Geist variable font via `@fontsource-variable/geist`
 
 **Content architecture**
-- Every string on the site lives in `src/data/profile.js` — bio, education,
-  experience, projects, skills, contact. No other file needs editing to update
-  content.
+- Every string on the site lives in `src/data/site.json` — bio, education,
+  experience, projects, skills, contact, plus `theme`, `sections` and `meta`.
+  No other file needs editing to update content.
+- `src/data/profile.js` is now a thin adapter over that JSON, so the section
+  components' imports were left untouched.
+- Section headings, nav labels, order and visibility come from `sections[]`;
+  `App.jsx` maps over it and the eyebrow numbering (`01 —`, `02 —`) follows
+  position, so reordering renumbers automatically.
 - Sections degrade gracefully on missing data: the Hero falls back to initials
   when `photo` is `null`, hides the résumé button when `resumeUrl` is `null`,
   and Contact hides the links row when `contact.links` is empty.
@@ -90,7 +101,50 @@ Management System, Stock Management System, Student Exam System), 4 skill groups
 - [x] Keyboard navigation through the carousel — the root is focusable with a
       visible focus ring, arrow keys step and wrap, and the detail panel below
       follows the selection.
-- [ ] No tests of any kind.
+- [x] `npm run check` covers the admin's non-UI logic and runs in CI. There is
+      still no component-level or end-to-end test runner.
+
+**Admin panel** — the largest addition since deployment.
+- Second Vite entry point (`admin.html` -> `src/admin/`), so the ~39 kB of
+  editor code is in its own bundle and portfolio visitors never download it.
+  Verified: `api.github.com` appears only in the admin chunk.
+- Talks to the GitHub Contents API straight from the browser using a
+  fine-grained PAT the user pastes in. No server, so the site stays on Pages.
+- Nine panels: Profile, Sections, Education, Experience, Projects, Skills,
+  Contact, Theme, Page & sharing. Arrays are reorderable and deletable.
+- Saves send the file's blob `sha`, so a stale tab gets a 409 rather than
+  silently overwriting a newer version.
+- After a save it polls the Actions API and reports when the deploy lands —
+  without that the site looks unchanged for a minute and the save looks broken.
+- Theme changes preview live in the editor itself.
+- Photo/résumé upload commits into `public/uploads/` and previews the local file
+  immediately, since the committed one is not served until the deploy finishes.
+
+**Theme system**
+- `src/lib/theme.js` turns the `theme` block into CSS. Shared by three callers:
+  `vite.config.js` (build-time injection), the admin (live preview) and
+  `main.jsx` (following the OS setting in `system` mode).
+- Injected into `index.html` at build time, so there is no flash of the wrong
+  colours, and `<title>`/`og:` tags are injected the same way — they are in the
+  served HTML where crawlers see them.
+
+---
+
+## Verification
+
+- `npm run lint` — passes, still only the two known shadcn warnings.
+- `npm run build` — clean, both entry points emit.
+- `npm run check` — 15 logic checks against `immutable.js`, `github.js` and
+  `theme.js`, now also run in CI ahead of the build:
+  immutable updates, unicode-safe base64 round-tripping of the real content
+  file, 3 MB binary encoding, theme CSS generation, and that every section's
+  `component` resolves in the registry.
+- Browser: all nine panels render with no console errors; edit -> Publish was
+  driven end to end against a stubbed GitHub API, and the committed payload
+  decodes back to valid JSON with the edit applied and unicode intact.
+- Editing `site.json` directly was confirmed to move sections, hide them,
+  renumber eyebrows, drop nav links and restyle the page, with no component
+  changes.
 
 ---
 
@@ -106,11 +160,12 @@ Management System, Stock Management System, Student Exam System), 4 skill groups
 
 ## Suggested next steps
 
-1. Add the photo and résumé PDF to `public/` and wire up the two `null` fields —
-   the highest-value change for the least effort, and the Hero already handles it.
-2. Add repo links to the projects that have public repos.
-3. Set `og:url` to the live URL and add a 1200x630 `og:image` to `public/`,
-   so shared links render a card instead of bare text.
+1. Create the GitHub token and open `/admin.html` on the live site.
+2. Upload the photo and résumé PDF through the Profile panel — highest value for
+   least effort, and the Hero already handles both.
+3. Add repo links to the projects that have public repos (Projects panel).
+4. Add a 1200x630 share image through the Page & sharing panel, so shared links
+   render a card instead of bare text. `og:url` is already set.
 
 ---
 
