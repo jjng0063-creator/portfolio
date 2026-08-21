@@ -21,9 +21,11 @@ export const profile = {
 
 export const contact = {
   email: 'jjng0063@gmail.com',
-  // Add profiles here when you have them, e.g.
-  //   { label: 'GitHub', href: 'https://github.com/your-handle' },
-  links: [],
+  links: [
+    { label: 'GitHub', href: 'https://github.com/jjng0063-creator' },
+    // Add LinkedIn here when you have it:
+    //   { label: 'LinkedIn', href: 'https://linkedin.com/in/your-handle' },
+  ],
 }
 
 export const education = [
