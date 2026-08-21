@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react'
-import { profile } from '@/data/profile'
+import { profile, sections } from '@/data/profile'
 
-const LINKS = [
-  { href: '#about', label: 'About' },
-  { href: '#studies', label: 'Studies' },
-  { href: '#career', label: 'Career' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#skills', label: 'Skills' },
-  { href: '#contact', label: 'Contact' },
-]
+// Mirrors the visible sections from src/data/site.json, so hiding or
+// reordering a section in the admin panel moves its nav link with it.
+const LINKS = sections.map(s => ({ href: `#${s.id}`, label: s.navLabel || s.title }))
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)

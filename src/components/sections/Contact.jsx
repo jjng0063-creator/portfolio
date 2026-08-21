@@ -3,11 +3,11 @@ import SectionHeading from '@/components/SectionHeading'
 import { Button } from '@/components/ui/button'
 import { contact, profile } from '@/data/profile'
 
-export default function Contact() {
+export default function Contact({ id, eyebrow, title, subtitle }) {
   return (
-    <Section id="contact">
-      <SectionHeading eyebrow="06 — Contact" title="Let's talk">
-        The quickest way to reach me is email — I read everything.
+    <Section id={id}>
+      <SectionHeading eyebrow={eyebrow} title={title}>
+        {subtitle}
       </SectionHeading>
 
       <a

@@ -65,7 +65,7 @@ function useCarouselSize() {
   return size
 }
 
-export default function Projects() {
+export default function Projects({ id, eyebrow, title, subtitle }) {
   const [active, setActive] = useState(0)
   const size = useCarouselSize()
 
@@ -82,10 +82,9 @@ export default function Projects() {
   const current = projects[active] ?? projects[0]
 
   return (
-    <Section id="projects">
-      <SectionHeading eyebrow="04 — Projects" title="Things I've built">
-        Drag, click a card, or use the arrow keys to move through the stack. Details
-        for the selected project appear below.
+    <Section id={id}>
+      <SectionHeading eyebrow={eyebrow} title={title}>
+        {subtitle}
       </SectionHeading>
 
       <div className="-mx-6 sm:mx-0">

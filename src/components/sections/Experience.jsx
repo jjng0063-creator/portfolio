@@ -3,11 +3,11 @@ import SectionHeading from '@/components/SectionHeading'
 import { Badge } from '@/components/ui/badge'
 import { experience } from '@/data/profile'
 
-export default function Experience() {
+export default function Experience({ id, eyebrow, title, subtitle }) {
   return (
-    <Section id="career">
-      <SectionHeading eyebrow="03 — Career" title="Where I've worked">
-        Roles, what I was responsible for, and what came out of it.
+    <Section id={id}>
+      <SectionHeading eyebrow={eyebrow} title={title}>
+        {subtitle}
       </SectionHeading>
 
       <ol className="relative border-l border-border pl-8">

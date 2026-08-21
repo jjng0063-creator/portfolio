@@ -4,11 +4,11 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { education } from '@/data/profile'
 
-export default function Education() {
+export default function Education({ id, eyebrow, title, subtitle }) {
   return (
-    <Section id="studies">
-      <SectionHeading eyebrow="02 — Studies" title="Education">
-        Where I studied and what I focused on.
+    <Section id={id}>
+      <SectionHeading eyebrow={eyebrow} title={title}>
+        {subtitle}
       </SectionHeading>
 
       <div className="grid gap-5 sm:grid-cols-2">
