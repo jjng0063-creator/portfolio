@@ -14,9 +14,12 @@ export const profile = {
     'I am a final-semester Computer Science student at Universiti Tunku Abdul Rahman with a broad foundation across Python, Java, C++, PHP and JavaScript. Most of what I have built has been end to end: a mobile or web front end, a backend I wrote myself, and a database schema designed around the problem rather than bolted on afterwards.',
     'My final year project pushed that furthest — a React Native attendance system backed by Python, using YuNet for face detection, ArcFace for recognition, and an anti-spoofing model to stop fraudulent check-ins. I am now looking for an internship where I can apply that analytical and problem-solving work in a professional team and keep learning quickly.',
   ],
-  // Put a photo in /public and set e.g. '/me.jpg'. Leave null for initials.
+  // Put a photo in public/ and point at it with the base prefix, e.g.
+  // import.meta.env.BASE_URL + 'me.jpg'. A bare '/me.jpg' 404s, because the
+  // site is served from a subpath. Leave null for initials.
   photo: null,
-  resumeUrl: null, // e.g. '/resume.pdf' (place the file in /public)
+  // Same again: import.meta.env.BASE_URL + 'resume.pdf', file in public/.
+  resumeUrl: null,
 }
 
 export const contact = {
