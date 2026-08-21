@@ -9,6 +9,29 @@ const SITE_JSON = path.resolve(import.meta.dirname, 'src/data/site.json')
 const readSite = () => JSON.parse(fs.readFileSync(SITE_JSON, 'utf8'))
 
 /**
+ * Resolve a possibly-relative URL against the site's base, or null if it cannot
+ * be resolved. Returning null matters: siteUrl is a free-text field in the
+ * admin panel, and letting `new URL()` throw here would turn an ordinary
+ * metadata edit into a failed build and a failed deploy.
+ */
+const absoluteUrl = (value, base) => {
+  if (!value) return null
+  try {
+    return new URL(value, base || undefined).href
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Vite writes injected tag children verbatim, which is right for <style> and
+ * <script> but means a title containing markup would break out of the element.
+ * Escaping the two characters that matter is enough for RCDATA content.
+ */
+const escapeText = value =>
+  String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+
+/**
  * Writes the theme and the page metadata from src/data/site.json into the HTML
  * at build time.
  *
@@ -45,12 +68,23 @@ function siteHtmlPlugin() {
           return { html, tags }
         }
 
+        const siteUrl = absoluteUrl(meta.siteUrl)
+        const ogImage = absoluteUrl(meta.ogImage, meta.siteUrl)
+
+        if (meta.ogImage && !ogImage) {
+          this.warn(
+            `Ignoring og:image "${meta.ogImage}": it is a relative path and meta.siteUrl ` +
+              `(${JSON.stringify(meta.siteUrl)}) is not a valid absolute URL. Set the Site URL ` +
+              `in the admin panel's "Page & sharing" tab.`
+          )
+        }
+
         const og = [
           ['og:type', 'website'],
           ['og:title', meta.ogTitle || meta.title],
           ['og:description', meta.ogDescription || meta.description],
-          ['og:url', meta.siteUrl],
-          ['og:image', meta.ogImage ? new URL(meta.ogImage, meta.siteUrl).href : null],
+          ['og:url', siteUrl],
+          ['og:image', ogImage],
         ]
 
         for (const [property, content] of og) {
@@ -61,7 +95,9 @@ function siteHtmlPlugin() {
 
         tags.push({
           tag: 'meta',
-          attrs: { name: 'twitter:card', content: meta.ogImage ? 'summary_large_image' : 'summary' },
+          // Keyed off the resolved image, not the raw field: claiming a large
+          // card with no usable image gives a broken preview.
+          attrs: { name: 'twitter:card', content: ogImage ? 'summary_large_image' : 'summary' },
           injectTo: 'head',
         })
 
@@ -77,7 +113,7 @@ function siteHtmlPlugin() {
         // over the source would also match anything inside a comment.
         tags.push({
           tag: 'title',
-          children: meta.title || 'Portfolio',
+          children: escapeText(meta.title || 'Portfolio'),
           injectTo: 'head-prepend',
         })
 
