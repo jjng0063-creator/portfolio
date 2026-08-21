@@ -2,15 +2,16 @@
 
 **Project:** `about-me` — single-page portfolio site for Ng Jun Jie
 **Last updated:** 21 August 2026
-**Status:** Feature-complete build, running locally. Not yet deployed.
+**Status:** Deployed and live at https://jjng0063-creator.github.io/portfolio/
 
 ---
 
 ## Where things stand
 
 The site is fully assembled and builds cleanly. All seven sections render from a
-single content file, and the custom projects carousel is finished. What remains
-is content polish (photo, résumé, project links) and getting it onto a host.
+single content file, and the custom projects carousel is finished. It is live on
+GitHub Pages and redeploys on every push to `main`. What remains is content
+polish — photo, résumé, project links, and an OG image.
 
 | Area | State |
 | --- | --- |
@@ -21,7 +22,7 @@ is content polish (photo, résumé, project links) and getting it onto a host.
 | shadcn/ui component set | Done — badge, button, card, separator |
 | Lint (`npm run lint`) | Passing — 2 known warnings, see below |
 | Production build (`npm run build`) | Working — output in `dist/` |
-| Deployment | **Not started** |
+| Deployment | Live on GitHub Pages, auto-deploys from `main` |
 
 ---
 
@@ -70,8 +71,14 @@ Management System, Stock Management System, Student Exam System), 4 skill groups
       `index.html` and needs nothing.
 
 **Deployment**
-- [ ] No host chosen and no CI. `dist/` is gitignored, so nothing is published.
-- [ ] No custom domain.
+- [x] Live at https://jjng0063-creator.github.io/portfolio/ — GitHub Pages,
+      published by `.github/workflows/deploy.yml` on every push to `main`.
+      The workflow runs lint and build, then uploads `dist/` via the Pages
+      OIDC deploy action. `dist/` stays gitignored; nothing is committed.
+- [ ] No custom domain. Adding one means a `CNAME` in `public/`, a DNS record,
+      and dropping `base` back to `'/'` in `vite.config.js`.
+- [ ] `og:url` and `og:image` in `index.html` are still unset. The URL is now
+      known, so `og:url` can be filled in; `og:image` needs a 1200x630 asset.
 
 **Polish / not yet addressed**
 - [x] SEO and social metadata in `index.html` — title, description, `og:type`,
@@ -102,16 +109,18 @@ Management System, Stock Management System, Student Exam System), 4 skill groups
 1. Add the photo and résumé PDF to `public/` and wire up the two `null` fields —
    the highest-value change for the least effort, and the Hero already handles it.
 2. Add repo links to the projects that have public repos.
-3. Deploy. The build is static, so any host works; Vercel or Netlify from the
-   GitHub repo is the shortest path.
+3. Set `og:url` to the live URL and add a 1200x630 `og:image` to `public/`,
+   so shared links render a card instead of bare text.
 
 ---
 
 ## Repository
 
-Branch `main`, tracking `origin/main`, working tree clean. Two commits:
+Branch `main`, tracking `origin/main`. Deploys are driven by pushes to `main`.
 
 ```
+e41a333  Deploy to GitHub Pages via Actions
+e7572ae  Add page metadata, move shadcn to devDependencies
 37b477a  Add GitHub profile link to contact section
 451c587  Add personal portfolio site
 ```
