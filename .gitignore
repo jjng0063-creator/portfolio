@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Résumé source — contains personal contact details, keep out of the public repo
+RESUME-*.pdf
