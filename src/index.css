@@ -1,0 +1,386 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ==========================================================================
+   DESIGN TOKENS
+   Monochrome base with a single darkroom-amber accent, used sparingly for
+   live/active states only. Every colour is defined on bare :root first so
+   nothing depends on a media query to have a value.
+   ========================================================================== */
+
+:root {
+  /* Surfaces */
+  --bg:            #08090d;
+  --bg-elev:       #0e1016;
+  --bg-elev-2:     #14171f;
+  --bg-sunken:     #050609;
+
+  /* Text — all verified >= 4.5:1 on --bg */
+  --text:          #f4f5f7;
+  --text-2:        #a8aebb;
+  --text-3:        #7b828f;
+
+  /* Lines */
+  --border:        rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-accent: rgba(233, 162, 59, 0.35);
+
+  /* Accent — darkroom safelight */
+  --accent:        #e9a23b;
+  --accent-soft:   rgba(233, 162, 59, 0.12);
+  --accent-text:   #f2b862;
+
+  /* Signal */
+  --live:          #4ade80;
+  --live-soft:     rgba(74, 222, 128, 0.12);
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 24px 56px -16px rgba(0, 0, 0, 0.75);
+
+  /* Fluid type scale */
+  --step--2: clamp(0.69rem, 0.68rem + 0.06vw, 0.73rem);
+  --step--1: clamp(0.8rem, 0.78rem + 0.12vw, 0.87rem);
+  --step-0:  clamp(0.95rem, 0.92rem + 0.18vw, 1.05rem);
+  --step-1:  clamp(1.13rem, 1.06rem + 0.36vw, 1.35rem);
+  --step-2:  clamp(1.4rem, 1.25rem + 0.75vw, 1.9rem);
+  --step-3:  clamp(1.85rem, 1.55rem + 1.5vw, 2.9rem);
+  --step-4:  clamp(2.4rem, 1.8rem + 3vw, 4.2rem);
+  --step-5:  clamp(3rem, 2.05rem + 4.75vw, 5.6rem);
+
+  /* Rhythm */
+  --gutter:  clamp(1.25rem, 0.9rem + 1.75vw, 3rem);
+  --section: clamp(4rem, 2.75rem + 5.5vw, 7rem);
+  --measure: 68ch;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg:            #fbfbfa;
+  --bg-elev:       #ffffff;
+  --bg-elev-2:     #f4f4f2;
+  --bg-sunken:     #f0f0ee;
+
+  --text:          #14161a;
+  --text-2:        #4a5058;
+  --text-3:        #6b7280;
+
+  --border:        rgba(0, 0, 0, 0.10);
+  --border-strong: rgba(0, 0, 0, 0.20);
+  --border-accent: rgba(180, 115, 20, 0.4);
+
+  --accent:        #b47314;
+  --accent-soft:   rgba(180, 115, 20, 0.10);
+  --accent-text:   #8a5709;
+
+  --live:          #15803d;
+  --live-soft:     rgba(21, 128, 61, 0.10);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 24px 56px -16px rgba(0, 0, 0, 0.16);
+
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Offset anchor targets so the sticky header never covers a heading */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: var(--step-0);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  code, kbd, samp, pre {
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  h1, h2, h3, h4 {
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    font-weight: 700;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  /* Visible, consistent focus ring for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  :where(a, button, [role="button"]) {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ==========================================================================
+   PRIMITIVES
+   ========================================================================== */
+
+/* ==========================================================================
+   THE CABINET STAGE
+   On desktop the cabinet owns a fixed column down the right-hand edge and the
+   page is padded to match, so the two never overlap. That split is what makes
+   the drawers clickable: the canvas can take pointer events in its own column
+   without covering — and swallowing clicks meant for — the content.
+   ========================================================================== */
+
+.cabinet-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cabinet-stage > * {
+  width: 100%;
+  height: 100%;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+}
+
+/* The split only earns its keep when there is width to spare. Below this the
+   reserved column squeezes the text measure badly — at 1024px it left ~570px of
+   content and stretched the page past 13,000px. */
+@media (min-width: 1280px) {
+  .cabinet-stage {
+    left: 64vw;
+    z-index: 2;
+  }
+
+  /* The canvas itself accepts pointer events so the files can be clicked; the
+     container stays transparent to them. */
+  .cabinet-stage canvas {
+    pointer-events: auto;
+  }
+
+  /* Reserve the cabinet's column so no content can slide under it. */
+  .page {
+    padding-right: 36vw;
+  }
+}
+
+/* Below the split, the cabinet drops behind the page as a faint presence and
+   stops taking clicks — the files are too small to hit, and every section is
+   already reachable from the nav. */
+@media (max-width: 1279px) {
+  .cabinet-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+  }
+}
+
+/* Placeholder cabinet shown until the canvas loads */
+.cabinet-poster {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.cabinet-poster-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: min(60%, 11rem);
+  /* Fixed, like the real cabinet: the drawers divide this height rather than
+     extending it, so adding a section does not make the placeholder taller
+     than the canvas that replaces it. 14.6rem is what five 2.4rem drawers
+     came to, so the five-drawer poster is unchanged. */
+  height: 14.6rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  opacity: 0.5;
+}
+
+.cabinet-poster-drawer {
+  display: block;
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+@media (max-width: 1279px) {
+  .cabinet-poster-body {
+    margin-left: 38%;
+    width: min(28vw, 9rem);
+  }
+}
+
+/* ==========================================================================
+   LANDING HIGHLIGHT
+   Clicking a folder in the cabinet sets the hash, so the browser scrolls and
+   :target fires on the item you picked. A brief ring confirms you landed on
+   that one thing rather than just somewhere in the section.
+   ========================================================================== */
+
+@keyframes land {
+  0%,
+  18% {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  100% {
+    box-shadow: 0 0 0 2px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  main :target {
+    animation: land 1.8s var(--ease) forwards;
+    border-radius: 12px;
+  }
+}
+
+/* ==========================================================================
+   EMERGE
+   Cards lift out of the open drawer and tip up into focus. The stage carries the
+   perspective so the rotation reads as depth rather than a flat skew; the inner
+   node is what the scheduler transforms.
+   ========================================================================== */
+
+.emerge-stage {
+  perspective: 1500px;
+  perspective-origin: 70% 100%;
+}
+
+.emerge {
+  /* Hinged at the lower edge, the way a file tips up out of a drawer. */
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emerge {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+}
+
+.surface {
+  /* Translucent so the cabinet reads behind the content instead of being boxed out */
+  background-color: color-mix(in srgb, var(--bg-elev) 86%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.surface-interactive {
+  transition:
+    border-color 0.25s var(--ease),
+    background-color 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+
+.surface-interactive:hover {
+  border-color: var(--border-strong);
+  background-color: var(--bg-elev-2);
+}
+
+/* Mono metadata label — matches the stamped plates on the drawer faces */
+.label {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* Hairline divider between sections, dashed like a filing index rule. */
+.sprocket-rule {
+  height: 1px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--border-strong) 0 10px,
+    transparent 10px 22px
+  );
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+/* ==========================================================================
+   MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   SCROLLBAR
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-sunken);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+  border: 2px solid var(--bg-sunken);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}

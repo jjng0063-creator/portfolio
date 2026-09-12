@@ -1,0 +1,261 @@
+{
+  "meta": {
+    "title": "Ng Jun Jie — Computer Science Student & Developer",
+    "description": "Final-year Computer Science student at UTAR building mobile and full-stack systems: face-recognition attendance, community platforms, management systems. Available for internship Oct 2026 to Jan 2027.",
+    "ogTitle": "Ng Jun Jie — Computer Science Student & Developer",
+    "ogDescription": "Final-year Computer Science student at UTAR building mobile and full-stack systems. Available for internship Oct 2026 to Jan 2027.",
+    "ogImage": "",
+    "siteUrl": "https://jjng0063-creator.github.io/portfolio-v2/"
+  },
+  "profile": {
+    "name": "Ng Jun Jie",
+    "role": "Final-Year Computer Science Student",
+    "headline": "I build mobile and full-stack systems, end to end.",
+    "summary": "Computer Science undergraduate at UTAR building mobile and full-stack systems, from face-recognition attendance to community resource sharing.",
+    "about": [
+      "I am a final-semester Computer Science student at Universiti Tunku Abdul Rahman with a broad foundation across Python, Java, C++, PHP and JavaScript. Most of what I have built has been end to end: a mobile or web front end, a backend I wrote myself, and a database schema designed around the problem rather than bolted on afterwards.",
+      "My final year project pushed that furthest: a React Native attendance system backed by Python, using YuNet for face detection, ArcFace for recognition, and an anti-spoofing model to stop fraudulent check-ins. I am now looking for an internship where I can apply that analytical and problem-solving work in a professional team and keep learning quickly."
+    ],
+    "photo": "me.jpeg",
+    "photoAlt": "Ng Jun Jie",
+    "location": "Gelugor, Penang, Malaysia",
+    "email": "jjng0063@gmail.com",
+    "whatsapp": "+60 11-2674 4317",
+    "github": "https://github.com/jjng0063-creator",
+    "linkedin": "",
+    "resumeUrl": "resume.pdf",
+    "contactFormEndpoint": "",
+    "status": {
+      "available": true,
+      "text": "Available for internship 19 Oct 2026 to 16 Jan 2027"
+    }
+  },
+  "stats": [],
+  "skillCategories": [
+    {
+      "title": "Programming Languages",
+      "description": "What I reach for first, and what I can read.",
+      "skills": [
+        { "name": "Python", "level": "Core" },
+        { "name": "Java", "level": "Working" },
+        { "name": "C++", "level": "Working" },
+        { "name": "PHP", "level": "Working" },
+        { "name": "JavaScript", "level": "Working" },
+        { "name": "HTML", "level": "Working" },
+        { "name": "Kotlin", "level": "Learning" }
+      ]
+    },
+    {
+      "title": "Frameworks & Libraries",
+      "description": "What I have built mobile apps and services on top of.",
+      "skills": [
+        { "name": "React Native", "level": "Core" },
+        { "name": "YuNet", "level": "Working" },
+        { "name": "ArcFace", "level": "Working" },
+        { "name": "Flask / FastAPI", "level": "Learning" },
+        { "name": "Room Persistence Library", "level": "Learning" }
+      ]
+    },
+    {
+      "title": "Databases & Tools",
+      "description": "Where the data lives, and what I work with around it.",
+      "skills": [
+        { "name": "MySQL", "level": "Working" },
+        { "name": "Firebase", "level": "Working" },
+        { "name": "PocketBase", "level": "Working" },
+        { "name": "Figma", "level": "Working" },
+        { "name": "AI Agents", "level": "Working" },
+        { "name": "Microsoft Office", "level": "Working" },
+        { "name": "SQLite", "level": "Learning" }
+      ]
+    },
+    {
+      "title": "Spoken Languages",
+      "description": "Languages I can work and hold a conversation in.",
+      "skills": [
+        { "name": "English", "level": "Core" },
+        { "name": "Chinese", "level": "Core" },
+        { "name": "Malay", "level": "Core" },
+        { "name": "Hokkien", "level": "Core" }
+      ]
+    }
+  ],
+  "apiEndpoints": [
+    {
+      "method": "GET",
+      "path": "/api/profile",
+      "description": "Who I am and what I am looking for",
+      "response": {
+        "name": "Ng Jun Jie",
+        "seeking": "Software engineering internship",
+        "availableFrom": "19 October 2026",
+        "availableUntil": "16 January 2027",
+        "location": "Gelugor, Penang, Malaysia",
+        "workAuthorization": "TODO: state this plainly, it saves everyone time"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/skills",
+      "description": "What I reach for, grouped by confidence",
+      "response": {
+        "core": ["Python", "React Native"],
+        "working": [
+          "Java",
+          "C++",
+          "PHP",
+          "JavaScript",
+          "MySQL",
+          "Firebase",
+          "PocketBase",
+          "Figma"
+        ],
+        "learning": ["Kotlin", "Flask / FastAPI", "SQLite"]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/contact",
+      "description": "How to reach me and what happens next",
+      "response": {
+        "status": 201,
+        "email": "jjng0063@gmail.com",
+        "whatsapp": "+60 11-2674 4317",
+        "typicalReplyTime": "TODO: be honest, e.g. within 2 days",
+        "bestFor": "Internship enquiries, interviews, or questions about a project"
+      }
+    }
+  ],
+  "projects": [
+    {
+      "id": "face-attendance",
+      "title": "Face Recognition Attendance System",
+      "category": "Full-Stack",
+      "year": "2025 – 2026",
+      "tagline": "Real-time attendance tracking with deep-learning face recognition and anti-spoofing.",
+      "problem": "Attendance taken by hand or by card is slow to collect and easy to fake — someone else signs you in, and a system that only matches a face can be fooled by holding up a photo of one.",
+      "approach": "A React Native app backed by a Python service. YuNet locates the face, ArcFace turns it into an embedding to match against enrolled users, and an anti-spoofing model runs first so a printed photo or a replayed video is rejected before recognition is even attempted. PocketBase holds the user profiles and biometric logs.",
+      "result": "TODO: the honest outcome — how many people you tested it on, how it held up against photo and video spoofs, and what the panel said.",
+      "tags": ["React Native", "Python", "YuNet", "ArcFace", "PocketBase"],
+      "image": "",
+      "imageAlt": "",
+      "demoUrl": "",
+      "githubUrl": "",
+      "featured": true
+    },
+    {
+      "id": "charitylink",
+      "title": "CharityLink",
+      "category": "Full-Stack",
+      "year": "2026",
+      "tagline": "Community resource sharing with peer-to-peer posting and real-time chat.",
+      "problem": "Usable things get thrown away because passing them on takes more effort than binning them — there is no easy way to find the person nearby who wants what you no longer need.",
+      "approach": "A React Native app built around peer-to-peer item posting and a real-time chat module, so the handover gets arranged inside the app rather than somewhere else. I designed the layouts, the interactive user flows and the original brand logos in Figma, and used a lightweight Firebase backend for authentication and live data instead of standing up a server of my own.",
+      "result": "TODO: the honest outcome — who used it, how many items were passed on, or the scope it reached as a coursework project.",
+      "tags": ["React Native", "Firebase", "Figma"],
+      "image": "",
+      "imageAlt": "",
+      "demoUrl": "",
+      "githubUrl": "",
+      "featured": true
+    },
+    {
+      "id": "cocurricular",
+      "title": "Student Co-curricular Management System",
+      "category": "Full-Stack",
+      "year": "2026",
+      "tagline": "A university web application for managing student activities.",
+      "problem": "Student co-curricular activities and the records behind them needed one place to be created, updated and reported on, rather than being tracked separately by everyone involved.",
+      "approach": "A full-stack PHP and MySQL web application, co-developed with a coursemate. I created the relational database schemas and wrote the server-side CRUD operations that render the data dynamically across the system.",
+      "result": "TODO: the honest outcome — what it was graded on, or who ended up using it.",
+      "tags": ["PHP", "MySQL"],
+      "image": "",
+      "imageAlt": "",
+      "demoUrl": "",
+      "githubUrl": "",
+      "featured": false
+    },
+    {
+      "id": "stock-management",
+      "title": "Stock Management System",
+      "category": "Backend / API",
+      "year": "2025",
+      "tagline": "Retail inventory tracking for appliance stock levels, written in Java.",
+      "problem": "Appliance stock levels need to be tracked and adjusted reliably, with the rules about items and quantities living in one place rather than spread through the interface.",
+      "approach": "A Java application applying object-oriented principles throughout — inventory, items and operations are modelled as classes, so the architecture stays reusable and modular instead of becoming one long procedure.",
+      "result": "TODO: the honest outcome — what it was graded on, or what it handled.",
+      "tags": ["Java", "OOP"],
+      "image": "",
+      "imageAlt": "",
+      "demoUrl": "",
+      "githubUrl": "",
+      "featured": false
+    },
+    {
+      "id": "exam-system",
+      "title": "Student Exam System",
+      "category": "Backend / API",
+      "year": "2024",
+      "tagline": "Command-line registration, course selection and exam slot booking.",
+      "problem": "Registration, course selection and exam slot booking all read and write the same records, so they need to share one consistent store instead of each keeping its own copy.",
+      "approach": "A C++ command-line system covering student registration, course selection and exam slot booking, with an administrative side for secure course management, updates and record deletion.",
+      "result": "TODO: the honest outcome — what it was graded on, or what it handled.",
+      "tags": ["C++"],
+      "image": "",
+      "imageAlt": "",
+      "demoUrl": "",
+      "githubUrl": "",
+      "featured": false
+    }
+  ],
+  "education": [
+    {
+      "period": "2024 – Present",
+      "title": "Bachelor of Computer Science (Honours)",
+      "organization": "Universiti Tunku Abdul Rahman",
+      "description": "Currently in Year 3, final semester. CGPA 2.82.",
+      "highlights": [
+        "Final year project: face-recognition attendance with YuNet detection, ArcFace recognition and anti-spoofing"
+      ]
+    },
+    {
+      "period": "2022 – 2023",
+      "title": "Foundation in Science",
+      "organization": "Universiti Tunku Abdul Rahman",
+      "description": "Completed the foundation programme leading into the Computer Science degree. CGPA 2.54.",
+      "highlights": []
+    }
+  ],
+  "experience": [
+    {
+      "period": "Jan 2026 – Feb 2026",
+      "title": "Part Time Promoter",
+      "organization": "Hei Hwang Food Industries (M) Sdn. Bhd. — Penang, Malaysia",
+      "description": "Seasonal retail promotion for the Chinese New Year hamper range.",
+      "highlights": [
+        "Engaged customers to promote hampers, explaining products and addressing enquiries",
+        "Kept developing communication and interpersonal skills through varied customer interactions"
+      ]
+    },
+    {
+      "period": "Jan 2025 – Feb 2025",
+      "title": "Part Time Promoter",
+      "organization": "Yin Onn Herbs — Penang, Malaysia",
+      "description": "Customer-facing promotion of herbal products in a retail setting.",
+      "highlights": [
+        "Explained product features and addressed enquiries directly on the floor",
+        "Developed strong communication and interpersonal skills through diverse customer interactions"
+      ]
+    },
+    {
+      "period": "May 2022 – Aug 2022",
+      "title": "Sales Assistant",
+      "organization": "TF Value Mart — Penang, Malaysia",
+      "description": "Retail floor support covering merchandising, stock and customer service.",
+      "highlights": [
+        "Systematically organised and managed merchandise for display and inventory control",
+        "Applied logical troubleshooting to resolve customer enquiries and operational issues quickly"
+      ]
+    }
+  ]
+}
