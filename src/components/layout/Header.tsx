@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, Sun, Moon, Volume2, VolumeX } from 'lucide-react';
+import { Menu, X, Sun, Moon, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import { NAV_SECTIONS, PORTFOLIO_DATA } from '../../data/portfolioData';
 import { useScrollSpy } from '../../hooks/useScrollSpy';
 import type { ThemeMode } from '../../hooks/useTheme';
 
 interface HeaderProps {
+  motionEnabled: boolean;
+  onToggleMotion: () => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
   soundEnabled: boolean;
@@ -14,6 +16,7 @@ interface HeaderProps {
 const SECTION_IDS = NAV_SECTIONS.map((s) => s.id);
 
 export const Header: React.FC<HeaderProps> = ({
+  motionEnabled, onToggleMotion,
   theme,
   onToggleTheme,
   soundEnabled,
@@ -89,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
           </a>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Sections">
+          <nav className="hidden min-[1800px]:flex items-center gap-1" aria-label="Sections">
             {NAV_SECTIONS.map((section) => {
               const isActive = activeId === section.id;
               return (
@@ -112,6 +115,9 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Controls */}
           <div className="flex items-center gap-1.5 shrink-0">
+            <IconButton onClick={onToggleMotion} label={motionEnabled ? 'Reduce motion' : 'Enable motion'} active={!motionEnabled}>
+              {motionEnabled ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            </IconButton>
             <IconButton
               onClick={onToggleSound}
               label={soundEnabled ? 'Mute interface sounds' : 'Enable interface sounds'}
@@ -141,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               type="button"
-              className="md:hidden grid place-items-center w-9 h-9 rounded-lg"
+              className="min-[1800px]:hidden grid place-items-center w-9 h-9 rounded-lg"
               style={{ border: '1px solid var(--border)', color: 'var(--text-2)' }}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
@@ -156,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Mobile menu */}
       {menuOpen && (
         <nav
-          className="md:hidden px-[var(--gutter)] pb-4 pt-1"
+          className="min-[1800px]:hidden px-[var(--gutter)] pb-4 pt-1"
           aria-label="Sections"
           style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}
         >
@@ -202,6 +208,7 @@ const IconButton: React.FC<{
     type="button"
     onClick={onClick}
     aria-label={label}
+    aria-pressed={active}
     title={label}
     className="grid place-items-center w-9 h-9 rounded-lg transition-colors duration-200"
     style={{

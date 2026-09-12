@@ -12,7 +12,7 @@ const LEVEL_HINT: Record<SkillLevel, string> = {
   Learning: 'Actively picking it up',
 };
 
-export const Skills: React.FC = () => (
+export const Skills: React.FC<{ onRevealProject?: () => void }> = ({ onRevealProject }) => (
   <Section
     id="skills"
     label="Skills"
@@ -39,9 +39,7 @@ export const Skills: React.FC = () => (
           <ul className="flex flex-col gap-2.5">
             {category.skills.map((skill) => (
               <li key={skill.name} className="flex items-center justify-between gap-3">
-                <span style={{ fontSize: 'var(--step-0)', color: 'var(--text)' }}>
-                  {skill.name}
-                </span>
+                <SkillEvidence name={skill.name} onRevealProject={onRevealProject} />
                 <span
                   className="label shrink-0"
                   title={LEVEL_HINT[skill.level]}
@@ -74,3 +72,19 @@ export const Skills: React.FC = () => (
     </dl>
   </Section>
 );
+
+function SkillEvidence({ name, onRevealProject }: { name: string; onRevealProject?: () => void }) {
+  const projects = PORTFOLIO_DATA.projects.filter(project =>
+    project.tags.some(tag => tag.trim().toLowerCase() === name.trim().toLowerCase())
+  );
+  if (!projects.length) return <span>{name}</span>;
+  return <details className="skill-evidence min-w-0">
+    <summary>{name} <span className="label">↗ {projects.length}</span></summary>
+    <ul className="grid gap-2 mt-3 pb-2">
+      {projects.map(project => <li key={project.id}>
+        <a href={`#${itemId.project(project.id)}`} onClick={onRevealProject}
+          className="underline underline-offset-4" style={{ color: 'var(--accent-text)', fontSize: 'var(--step--1)' }}>{project.title}</a>
+      </li>)}
+    </ul>
+  </details>;
+}

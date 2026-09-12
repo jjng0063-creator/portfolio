@@ -538,10 +538,13 @@ const Cabinet: React.FC<CabinetProps> = ({ bands, drawers, theme, reduceMotion }
     // from an effect with cleanup is the correct place to do this.
     // oxlint-disable-next-line react/immutability
     canvas.style.cursor = hovered ? 'pointer' : '';
+    const file = hovered?.kind === 'file' ? drawers[hovered.drawer]?.files[hovered.file] : null;
+    canvas.title = file ? (file.fullLabel || file.label) : hovered ? drawers[hovered.drawer]?.label || '' : '';
     return () => {
       canvas.style.cursor = '';
+      canvas.title = '';
     };
-  }, [gl, hovered]);
+  }, [gl, hovered, drawers]);
 
   /** Files only respond once their drawer is actually open. */
   const isReachable = useCallback((i: number) => openAmounts.current[i] > 0.55, []);

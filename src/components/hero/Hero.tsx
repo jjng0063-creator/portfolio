@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowDown, Check, Copy, FileText, MapPin } from 'lucide-react';
+import { ArrowDown, Check, Copy, FileText } from 'lucide-react';
 import { PORTFOLIO_DATA } from '../../data/portfolioData';
 import { Button } from '../ui/Button';
 import { GithubIcon, LinkedinIcon } from '../ui/Icons';
@@ -100,16 +100,15 @@ export const Hero: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
             )}
           </div>
 
+          <p className="mt-5" style={{ fontSize: 'var(--step--1)', color: 'var(--text-2)' }}>
+            {profile.role} · {profile.location}
+          </p>
+
           {/* Meta row */}
           <div
             className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2"
             style={{ fontSize: 'var(--step--1)', color: 'var(--text-3)' }}
           >
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
-              {profile.location}
-            </span>
-
             {profile.github && (
               <a
                 href={profile.github}

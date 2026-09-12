@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowUpRight, Activity, ImageOff } from 'lucide-react';
+import React from 'react';
+import { ArrowUpRight, Activity } from 'lucide-react';
 import {
   PORTFOLIO_DATA,
   itemId,
@@ -10,6 +10,7 @@ import { Section } from '../ui/Section';
 import { Field } from '../ui/Placeholder';
 import { Emerge } from '../ui/Emerge';
 import { GithubIcon } from '../ui/Icons';
+import { ProjectFile } from './ProjectFile';
 
 const CATEGORIES: ('All' | ProjectCategory)[] = [
   'All',
@@ -19,8 +20,11 @@ const CATEGORIES: ('All' | ProjectCategory)[] = [
   'Cloud / DevOps',
 ];
 
-export const Projects: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
-  const [filter, setFilter] = useState<'All' | ProjectCategory>('All');
+export const Projects: React.FC<{
+  onSound?: () => void;
+  filter: 'All' | ProjectCategory;
+  onFilterChange: (filter: 'All' | ProjectCategory) => void;
+}> = ({ onSound, filter, onFilterChange }) => {
 
   const projects =
     filter === 'All'
@@ -58,7 +62,7 @@ export const Projects: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
                 key={cat}
                 type="button"
                 onClick={() => {
-                  setFilter(cat);
+                  onFilterChange(cat);
                   onSound?.();
                 }}
                 aria-pressed={isActive}
@@ -84,7 +88,6 @@ export const Projects: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
               id={itemId.project(project.id)}
               className="surface surface-interactive p-[clamp(1.25rem,1rem+1.2vw,2.25rem)]"
             >
-            <ProjectMedia project={project} />
 
             {/* Header */}
             <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
@@ -151,24 +154,7 @@ export const Projects: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
               </div>
             </div>
 
-            {/* The pitch */}
-            <div className="grid gap-5 md:grid-cols-3 md:gap-7">
-              {(
-                [
-                  ['Problem', project.problem],
-                  ['Approach', project.approach],
-                  ['Result', project.result],
-                ] as const
-              ).map(([heading, body]) => (
-                <div key={heading}>
-                  <h4 className="label mb-2.5">{heading}</h4>
-                  <Field
-                    value={body}
-                    style={{ fontSize: 'var(--step--1)', color: 'var(--text-2)', lineHeight: 1.6 }}
-                  />
-                </div>
-              ))}
-            </div>
+            <ProjectFile project={project} />
 
             {/* Stack */}
             {project.tags.length > 0 && (
@@ -284,88 +270,6 @@ const CompactRow: React.FC<{ project: ProjectItem; first: boolean }> = ({
         </a>
       )}
     </div>
+    <ProjectFile project={project} compact />
   </li>
 );
-
-/**
- * The project's screenshot.
- *
- * Aspect-locked so the card never reflows when the image arrives — the slot is
- * the same size whether or not there is a file yet. With no image it renders a
- * flagged empty state rather than collapsing, so a missing screenshot reads as
- * unfinished instead of silently absent.
- */
-const ProjectMedia: React.FC<{ project: ProjectItem }> = ({ project }) => {
-  const frame = 'relative w-full overflow-hidden rounded-[10px] mb-6';
-  const frameStyle: React.CSSProperties = {
-    aspectRatio: '16 / 9',
-    border: '1px solid var(--border)',
-    backgroundColor: 'var(--bg-sunken)',
-  };
-
-  // The empty state is deliberately NOT aspect-locked. A real screenshot earns
-  // a full 16:9 banner, but an empty placeholder at card width would be ~576px
-  // of nothing per project. The height is fixed per render, so there is no
-  // layout shift — cards simply differ in height until the images land.
-  if (!project.image) {
-    return (
-      <div
-        className={frame}
-        style={{
-          ...frameStyle,
-          aspectRatio: 'auto',
-          height: '8.5rem',
-          borderStyle: 'dashed',
-          borderColor: 'var(--border-accent)',
-          backgroundColor: 'var(--accent-soft)',
-        }}
-        data-placeholder="true"
-      >
-        <div className="absolute inset-0 flex items-center justify-center gap-3 px-6">
-          <ImageOff
-            className="w-4 h-4 shrink-0 opacity-70"
-            style={{ color: 'var(--accent-text)' }}
-            aria-hidden="true"
-          />
-          <p className="label" style={{ color: 'var(--accent-text)' }}>
-            No screenshot yet
-          </p>
-          <span
-            className="font-mono opacity-80"
-            style={{ fontSize: 'var(--step--2)', color: 'var(--accent-text)' }}
-          >
-            add to public/work/ and set `image`
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  const img = (
-    <img
-      src={project.image}
-      alt={project.imageAlt || `Screenshot of ${project.title}`}
-      loading="lazy"
-      decoding="async"
-      className="absolute inset-0 w-full h-full object-cover object-top"
-    />
-  );
-
-  // When there is a live demo the screenshot is the obvious thing to click.
-  return project.demoUrl ? (
-    <a
-      href={project.demoUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`${frame} block group`}
-      style={frameStyle}
-      aria-label={`Open the live demo of ${project.title}`}
-    >
-      {img}
-    </a>
-  ) : (
-    <div className={frame} style={frameStyle}>
-      {img}
-    </div>
-  );
-};

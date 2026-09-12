@@ -23,6 +23,11 @@ import content from './content.json';
 export const IS_PLACEHOLDER = false;
 
 export interface ProjectItem {
+  role?: string;
+  decisions?: string;
+  challenges?: string;
+  lessons?: string;
+  screenshots?: { src: string; alt: string }[];
   id: string;
   title: string;
   category: ProjectCategory;
@@ -181,6 +186,7 @@ export const PORTFOLIO_DATA: SiteContent = {
   projects: raw.projects.map((project) => ({
     ...project,
     image: withBase(project.image),
+    screenshots: project.screenshots?.map((shot) => ({ ...shot, src: withBase(shot.src) })),
   })),
 };
 
@@ -215,6 +221,7 @@ const tab = (value: string, max = 16) =>
 
 export interface DrawerFile {
   label: string;
+  fullLabel?: string;
   targetId: string;
 }
 
@@ -242,6 +249,7 @@ export function drawerFiles(sectionId: string): DrawerFile[] {
     case 'projects':
       return PORTFOLIO_DATA.projects.map((p) => ({
         label: tab(p.title),
+        fullLabel: p.title,
         targetId: itemId.project(p.id),
       }));
     case 'skills':

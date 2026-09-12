@@ -3,6 +3,7 @@ import { Check, Copy, Play } from 'lucide-react';
 import { PORTFOLIO_DATA, itemId, type ApiEndpoint } from '../../data/portfolioData';
 import { Section } from '../ui/Section';
 import { Emerge } from '../ui/Emerge';
+import { simulateRequest } from '../../lib/playground';
 
 /** Syntax-colours a JSON string without pulling in a highlighter library.
  *  Splits on the token shapes JSON.stringify can actually produce. */
@@ -38,14 +39,25 @@ function highlight(json: string): React.ReactNode[] {
 }
 
 export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
-  const [selected, setSelected] = useState<ApiEndpoint>(PORTFOLIO_DATA.apiEndpoints[0]);
+  const [selected, setSelected] = useState<ApiEndpoint | undefined>(PORTFOLIO_DATA.apiEndpoints[0]);
   const [running, setRunning] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [request, setRequest] = useState('{\n  "message": "Hello!"\n}');
+  const [result, setResult] = useState<{ status: number; body: Record<string, unknown> } | null>(null);
 
-  const body = JSON.stringify(selected.response, null, 2);
+  if (!selected) {
+    return (
+      <Section id="playground" label="Playground" title="Or just query me.">
+        <p style={{ color: 'var(--text-2)' }}>No endpoints to explore yet.</p>
+      </Section>
+    );
+  }
+
+  const body = JSON.stringify(result?.body ?? selected.response, null, 2);
 
   const run = (endpoint: ApiEndpoint) => {
     setSelected(endpoint);
+    setResult(null);
     setRunning(true);
     onSound?.();
     setTimeout(() => setRunning(false), 260);
@@ -123,6 +135,18 @@ export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
               );
             })}
           </ul>
+          {selected.method === 'POST' && <div className="mt-5">
+            <label className="label" htmlFor="playground-request">Request body (JSON)</label>
+            <textarea id="playground-request" className="request-editor mt-3" rows={6} spellCheck={false}
+              value={request} onChange={event => { setRequest(event.target.value); setResult(null); }} />
+            <button type="button" className="file-button mt-3" onClick={() => {
+              setResult(simulateRequest(request, selected.response));
+              onSound?.();
+            }}>Run simulated request</button>
+            <p className="mt-3" style={{ color: 'var(--text-3)', fontSize: 'var(--step--1)' }}>
+              Runs only in your browser. No message is sent. Any JSON object is accepted; invalid JSON shows a simulated error.
+            </p>
+          </div>}
         </Emerge>
 
         {/* Response */}
@@ -139,7 +163,7 @@ export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
               className="truncate"
               style={{ fontSize: 'var(--step--2)', color: 'var(--text-3)' }}
             >
-              curl {selected.method} {selected.path}
+              {selected.method} {selected.path} · simulated
             </code>
             <button
               type="button"
@@ -157,7 +181,7 @@ export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
             style={{ borderBottom: '1px solid var(--border)', fontSize: 'var(--step--2)' }}
           >
             <span className="font-mono font-semibold" style={{ color: 'var(--live)' }}>
-              ● 200 OK
+              ● {result?.status === 400 ? '400 Bad Request' : '200 OK'} · simulated
             </span>
             <span className="font-mono" style={{ color: 'var(--text-3)' }}>
               application/json

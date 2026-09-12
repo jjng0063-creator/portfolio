@@ -29,12 +29,9 @@ const entries = new Map<HTMLElement, Entry>();
 let observer: IntersectionObserver | null = null;
 let frame = 0;
 let running = false;
-let reduceMotion = false;
 
 function ensureSetup() {
   if (observer) return;
-
-  reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Bound once for the whole module. Registering these per element would leak a
   // listener for every card on the page.
@@ -141,12 +138,6 @@ export function registerEmerge(el: HTMLElement, options: EmergeOptions = {}): ()
     strength: options.strength ?? 1,
   };
 
-  if (reduceMotion) {
-    // Respect the preference outright: no transform, no observer, no loop.
-    el.style.transform = '';
-    el.style.opacity = '';
-    return () => {};
-  }
 
   const entry: Entry = { el, options: resolved, visible: false, current: 0, settled: false };
   entries.set(el, entry);
@@ -157,8 +148,9 @@ export function registerEmerge(el: HTMLElement, options: EmergeOptions = {}): ()
   tick();
 
   return () => {
+    settle(entry);
     observer!.unobserve(el);
     entries.delete(el);
-    if (entries.size === 0) cancelAnimationFrame(frame);
+    if (entries.size === 0) { cancelAnimationFrame(frame); running = false; }
   };
 }

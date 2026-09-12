@@ -41,7 +41,7 @@ export const ProfilePanel: React.FC = () => (
       <TextField
         path={['profile', 'role']}
         label="Role"
-        hint="Not shown on the page yet — used in the page title and as a fallback."
+        hint="Shown beside the location and availability near the headline."
       />
     </Row>
 
@@ -202,6 +202,18 @@ export const ProjectsPanel: React.FC = () => (
           />
 
           <StringListField path={[...p, 'tags']} label="Stack" addLabel="Add tag" />
+
+          <TextField path={[...p, 'role']} label="My role" hint="Optional. Describe your own contribution." />
+          <TextAreaField path={[...p, 'decisions']} label="Key decisions" rows={3} />
+          <TextAreaField path={[...p, 'challenges']} label="Challenges" rows={3} />
+          <TextAreaField path={[...p, 'lessons']} label="Lessons learned" rows={3} />
+          <Repeater<{ src: string; alt: string }> path={[...p, 'screenshots']} addLabel="Add gallery screenshot"
+            title={(shot) => shot.alt || 'Screenshot'} blank={() => ({ src: '', alt: '' })}>
+            {(shot) => <>
+              <MediaField path={[...shot, 'src']} label="Gallery image" folder="work" accept="image/*" preview />
+              <TextField path={[...shot, 'alt']} label="Image description" hint="Required. Describe what this screen shows." />
+            </>}
+          </Repeater>
 
           <MediaField
             path={[...p, 'image']}
@@ -371,17 +383,25 @@ const JsonField: React.FC<{
   value: unknown;
 }> = ({ path, label, value }) => {
   const [, setValue] = useField(path);
-  const [text, setText] = React.useState(() => JSON.stringify(value ?? {}, null, 2));
-  const [error, setError] = React.useState<string | null>(null);
+  const [draft, setDraft] = React.useState(() => ({
+    value,
+    text: JSON.stringify(value ?? {}, null, 2),
+    error: null as string | null,
+  }));
+  // Rows can move, be deleted, or be replaced by a reload. Reset local text
+  // before rendering a different response at this path, including invalid drafts.
+  if (draft.value !== value) {
+    setDraft({ value, text: JSON.stringify(value ?? {}, null, 2), error: null });
+  }
+  const { text, error } = draft;
 
   const onChange = (next: string) => {
-    setText(next);
     try {
       const parsed = JSON.parse(next);
-      setError(null);
+      setDraft({ value: parsed, text: next, error: null });
       setValue(parsed);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid JSON');
+      setDraft({ value, text: next, error: err instanceof Error ? err.message : 'Invalid JSON' });
     }
   };
 

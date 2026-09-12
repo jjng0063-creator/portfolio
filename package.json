@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "test": "node --test scripts/regressions.test.mjs",
+    "test:browser": "node scripts/browser-smoke.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "check": "node scripts/check.mjs",
@@ -25,6 +27,8 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.81.0",
+    "playwright-core": "^1.63.0",
+    "react-test-renderer": "^19.2.8",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.3.0"

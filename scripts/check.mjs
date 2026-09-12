@@ -97,6 +97,17 @@ projects.forEach((p, i) => {
   if (p.image && !p.imageAlt) {
     fail(`${where}.imageAlt`, 'is required whenever `image` is set');
   }
+  for (const key of ['role', 'decisions', 'challenges', 'lessons']) {
+    if (p[key] !== undefined && !isString(p[key])) fail(`${where}.${key}`, 'must be a string');
+  }
+  if (p.screenshots !== undefined) {
+    if (!Array.isArray(p.screenshots)) fail(`${where}.screenshots`, 'must be an array');
+    else p.screenshots.forEach((shot, j) => {
+      if (!isString(shot?.src) || !shot.src.trim() || !isString(shot?.alt) || !shot.alt.trim()) {
+        fail(`${where}.screenshots[${j}]`, 'needs an image path and description');
+      }
+    });
+  }
 });
 
 /* --- skills --------------------------------------------------------------- */

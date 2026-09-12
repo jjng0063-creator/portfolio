@@ -32,6 +32,8 @@ npm run dev
 | `npm run preview` | Serve the built `dist/` locally |
 | `npm run lint` | oxlint |
 | `npm run check` | Validates `src/data/content.json` |
+| `npm test` | Runs component regression tests |
+| `npm run test:browser` | Runs browser interaction checks using installed Chrome (`CHROME_PATH` can override its location) |
 
 Changes worth knowing about are recorded in [CHANGELOG.md](CHANGELOG.md).
 
@@ -101,6 +103,26 @@ An earlier version of this site shipped the template's fabricated metrics —
 the first thing an interviewer probes and the fastest way to lose a room. Every
 metric field here is optional and empty by default. Fewer real numbers beat more
 fake ones.
+
+### Project files and galleries
+
+Project cards now open inline files containing their problem, approach, and
+result. Optional `role`, `decisions`, `challenges`, and `lessons` fields add depth;
+empty fields and unfinished TODO detail text are omitted. These fields are
+available in the Projects admin tab.
+
+The existing `image` / `imageAlt` pair is the gallery cover. Add more images with
+`screenshots: [{ "src": "work/detail.png", "alt": "Description of the screen" }]`,
+or upload them through the gallery repeater in admin. Every screenshot requires
+a description. Clicking an image opens a native dialog; Escape closes it.
+
+Skills with an exact, case-insensitive match in project stack tags expand to
+show evidence links. These links reset the project filter before navigation.
+
+The header motion toggle follows the OS initially and remembers an explicit
+choice in this browser. Mobile visitors also have fixed quick links to Projects,
+Résumé (when provided), and Contact. The API playground only simulates requests
+locally; use the Contact section to send a real enquiry.
 
 ### Contact form
 

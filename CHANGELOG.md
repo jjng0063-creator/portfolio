@@ -13,7 +13,38 @@ matter.
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- Long playground JSON now scrolls within its panel instead of widening the
+  page at phone widths. Header navigation collapses before its controls crowd.
+- An empty Playground endpoint list now shows an empty state instead of crashing
+  the portfolio after the last endpoint is deleted in the editor.
+- JSON response editors refresh when their underlying response changes, including
+  after reordering, deleting entries, or reloading content, preventing stale text
+  from overwriting another endpoint's response.
+- Project cabinet folders now follow the selected category filter, so every
+  folder points to a project currently on the page. Selecting All restores them.
+
+### Added
+
+- Expandable project files using the existing problem, approach, and result copy,
+  with optional role, decisions, challenges, and lessons editable in the admin.
+- Numbered screenshot galleries and a native full-size dialog with Escape,
+  keyboard focus containment, and previous/next controls. Existing cover images
+  remain supported; additional images and descriptions can be uploaded in admin.
+- Skill evidence links derived from matching project stack tags. Following one
+  clears the project filter so its destination is visible.
+- Cabinet guidance with a dismissible session hint, full project-name hover
+  labels, and a keyboard-accessible file index in the cabinet column.
+- Mobile Projects, Résumé, and Contact shortcuts with safe-area spacing, plus
+  the profile role and location beside the hero actions.
+- A saved motion preference, initially following the OS. Reduced motion uses
+  the cabinet poster and removes card motion and interface animations.
+- Editable POST request bodies in the playground, with clearly labelled local
+  simulations of successful requests and invalid-JSON errors; nothing is sent.
+- Component regression checks for empty endpoints, response editing after
+  reordering, deleting, and reloading, and cabinet folders after filtering.
+  Run with `npm test`; the deployment workflow also runs them before building.
 
 ## [1.0.0] — 2026-09-13
 
