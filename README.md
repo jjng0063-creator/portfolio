@@ -33,6 +33,8 @@ npm run dev
 | `npm run lint` | oxlint |
 | `npm run check` | Validates `src/data/content.json` |
 
+Changes worth knowing about are recorded in [CHANGELOG.md](CHANGELOG.md).
+
 ---
 
 ## Filling it in
