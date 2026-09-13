@@ -36,47 +36,116 @@
       "title": "Programming Languages",
       "description": "What I reach for first, and what I can read.",
       "skills": [
-        { "name": "Python", "level": "Core" },
-        { "name": "Java", "level": "Working" },
-        { "name": "C++", "level": "Working" },
-        { "name": "PHP", "level": "Working" },
-        { "name": "JavaScript", "level": "Working" },
-        { "name": "HTML", "level": "Working" },
-        { "name": "Kotlin", "level": "Learning" }
+        {
+          "name": "Python",
+          "level": "Core"
+        },
+        {
+          "name": "Java",
+          "level": "Working"
+        },
+        {
+          "name": "C++",
+          "level": "Working"
+        },
+        {
+          "name": "PHP",
+          "level": "Working"
+        },
+        {
+          "name": "JavaScript",
+          "level": "Working"
+        },
+        {
+          "name": "HTML",
+          "level": "Working"
+        },
+        {
+          "name": "Kotlin",
+          "level": "Learning"
+        }
       ]
     },
     {
       "title": "Frameworks & Libraries",
       "description": "What I have built mobile apps and services on top of.",
       "skills": [
-        { "name": "React Native", "level": "Core" },
-        { "name": "YuNet", "level": "Working" },
-        { "name": "ArcFace", "level": "Working" },
-        { "name": "Flask / FastAPI", "level": "Learning" },
-        { "name": "Room Persistence Library", "level": "Learning" }
+        {
+          "name": "React Native",
+          "level": "Core"
+        },
+        {
+          "name": "YuNet",
+          "level": "Working"
+        },
+        {
+          "name": "ArcFace",
+          "level": "Working"
+        },
+        {
+          "name": "Flask / FastAPI",
+          "level": "Learning"
+        },
+        {
+          "name": "Room Persistence Library",
+          "level": "Learning"
+        }
       ]
     },
     {
       "title": "Databases & Tools",
       "description": "Where the data lives, and what I work with around it.",
       "skills": [
-        { "name": "MySQL", "level": "Working" },
-        { "name": "Firebase", "level": "Working" },
-        { "name": "PocketBase", "level": "Working" },
-        { "name": "Figma", "level": "Working" },
-        { "name": "AI Agents", "level": "Working" },
-        { "name": "Microsoft Office", "level": "Working" },
-        { "name": "SQLite", "level": "Learning" }
+        {
+          "name": "MySQL",
+          "level": "Working"
+        },
+        {
+          "name": "Firebase",
+          "level": "Working"
+        },
+        {
+          "name": "PocketBase",
+          "level": "Working"
+        },
+        {
+          "name": "Figma",
+          "level": "Working"
+        },
+        {
+          "name": "AI Agents",
+          "level": "Working"
+        },
+        {
+          "name": "Microsoft Office",
+          "level": "Working"
+        },
+        {
+          "name": "SQLite",
+          "level": "Learning"
+        }
       ]
     },
     {
       "title": "Spoken Languages",
       "description": "Languages I can work and hold a conversation in.",
       "skills": [
-        { "name": "English", "level": "Core" },
-        { "name": "Chinese", "level": "Core" },
-        { "name": "Malay", "level": "Core" },
-        { "name": "Hokkien", "level": "Core" }
+        {
+          "name": "English",
+          "level": "Core"
+        },
+        {
+          "name": "Chinese",
+          "level": "Core"
+        },
+        {
+          "name": "Malay",
+          "level": "Core"
+        },
+        {
+          "name": "Hokkien",
+          "level": "Core"
+        }
       ]
     }
   ],
@@ -99,7 +168,10 @@
       "path": "/api/skills",
       "description": "What I reach for, grouped by confidence",
       "response": {
-        "core": ["Python", "React Native"],
+        "core": [
+          "Python",
+          "React Native"
+        ],
         "working": [
           "Java",
           "C++",
@@ -110,7 +182,11 @@
           "PocketBase",
           "Figma"
         ],
-        "learning": ["Kotlin", "Flask / FastAPI", "SQLite"]
+        "learning": [
+          "Kotlin",
+          "Flask / FastAPI",
+          "SQLite"
+        ]
       }
     },
     {
@@ -136,8 +212,14 @@
       "problem": "Attendance taken by hand or by card is slow to collect and easy to fake — someone else signs you in, and a system that only matches a face can be fooled by holding up a photo of one.",
       "approach": "A React Native app backed by a Python service. YuNet locates the face, ArcFace turns it into an embedding to match against enrolled users, and an anti-spoofing model runs first so a printed photo or a replayed video is rejected before recognition is even attempted. PocketBase holds the user profiles and biometric logs.",
       "result": "TODO: the honest outcome — how many people you tested it on, how it held up against photo and video spoofs, and what the panel said.",
-      "tags": ["React Native", "Python", "YuNet", "ArcFace", "PocketBase"],
-      "image": "",
+      "tags": [
+        "React Native",
+        "Python",
+        "YuNet",
+        "ArcFace",
+        "PocketBase"
+      ],
+      "image": "work/mtzhzqnh-face-attendance.jpg",
       "imageAlt": "",
       "demoUrl": "",
       "githubUrl": "",
@@ -152,7 +234,11 @@
       "problem": "Usable things get thrown away because passing them on takes more effort than binning them — there is no easy way to find the person nearby who wants what you no longer need.",
       "approach": "A React Native app built around peer-to-peer item posting and a real-time chat module, so the handover gets arranged inside the app rather than somewhere else. I designed the layouts, the interactive user flows and the original brand logos in Figma, and used a lightweight Firebase backend for authentication and live data instead of standing up a server of my own.",
       "result": "TODO: the honest outcome — who used it, how many items were passed on, or the scope it reached as a coursework project.",
-      "tags": ["React Native", "Firebase", "Figma"],
+      "tags": [
+        "React Native",
+        "Firebase",
+        "Figma"
+      ],
       "image": "",
       "imageAlt": "",
       "demoUrl": "",
@@ -168,7 +254,10 @@
       "problem": "Student co-curricular activities and the records behind them needed one place to be created, updated and reported on, rather than being tracked separately by everyone involved.",
       "approach": "A full-stack PHP and MySQL web application, co-developed with a coursemate. I created the relational database schemas and wrote the server-side CRUD operations that render the data dynamically across the system.",
       "result": "TODO: the honest outcome — what it was graded on, or who ended up using it.",
-      "tags": ["PHP", "MySQL"],
+      "tags": [
+        "PHP",
+        "MySQL"
+      ],
       "image": "",
       "imageAlt": "",
       "demoUrl": "",
@@ -184,7 +273,10 @@
       "problem": "Appliance stock levels need to be tracked and adjusted reliably, with the rules about items and quantities living in one place rather than spread through the interface.",
       "approach": "A Java application applying object-oriented principles throughout — inventory, items and operations are modelled as classes, so the architecture stays reusable and modular instead of becoming one long procedure.",
       "result": "TODO: the honest outcome — what it was graded on, or what it handled.",
-      "tags": ["Java", "OOP"],
+      "tags": [
+        "Java",
+        "OOP"
+      ],
       "image": "",
       "imageAlt": "",
       "demoUrl": "",
@@ -200,7 +292,9 @@
       "problem": "Registration, course selection and exam slot booking all read and write the same records, so they need to share one consistent store instead of each keeping its own copy.",
       "approach": "A C++ command-line system covering student registration, course selection and exam slot booking, with an administrative side for secure course management, updates and record deletion.",
       "result": "TODO: the honest outcome — what it was graded on, or what it handled.",
-      "tags": ["C++"],
+      "tags": [
+        "C++"
+      ],
       "image": "",
       "imageAlt": "",
       "demoUrl": "",
