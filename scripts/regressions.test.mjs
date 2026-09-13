@@ -58,9 +58,9 @@ test('project carousel controls update the announced and selected project', asyn
     })); });
     const total = PORTFOLIO_DATA.projects.length;
     const secondTitle = view.root.findAllByProps({ className: 'project-carousel-tab' })[1].children.join('');
-    assert.equal(view.root.findByProps({ 'aria-live': 'polite' }).children.join(''), `01 / ${String(total).padStart(2, '0')}`);
+    assert.equal(view.root.findByProps({ role: 'status' }).children.join(''), `01 / ${String(total).padStart(2, '0')}`);
     await act(() => view.root.findByProps({ 'aria-label': 'Next project' }).props.onClick());
-    assert.equal(view.root.findByProps({ 'aria-live': 'polite' }).children.join(''), `02 / ${String(total).padStart(2, '0')}`);
+    assert.equal(view.root.findByProps({ role: 'status' }).children.join(''), `02 / ${String(total).padStart(2, '0')}`);
     const selectedTabs = view.root.findAllByProps({ className: 'project-carousel-tab', 'aria-current': 'true' });
     assert.equal(selectedTabs.length, 1);
     assert.equal(selectedTabs[0].children.join(''), secondTitle);
@@ -84,11 +84,11 @@ test('project carousel keeps one selected detail panel outside moving covers', a
       view.root.findAllByProps({ 'data-project-anchor': true }).map((anchor) => anchor.props.id),
       PORTFOLIO_DATA.projects.map((project) => `project-${project.id}`)
     );
-    assert.equal(detail.findByProps({ 'data-active': true }).findByProps({ className: 'project-detail-title' }).children.join(''), first.title);
+    assert.equal(detail.findByProps({ className: 'project-detail-heading', 'data-active': true }).findByProps({ className: 'project-detail-title' }).children.join(''), first.title);
     await act(() => view.root.findByProps({ 'aria-label': 'Next project' }).props.onClick());
     const updatedDetail = view.root.findByProps({ className: 'project-detail-panel' });
     assert.equal(updatedDetail.props.id, undefined);
-    assert.equal(updatedDetail.findByProps({ 'data-active': true }).findByProps({ className: 'project-detail-title' }).children.join(''), second.title);
+    assert.equal(updatedDetail.findByProps({ className: 'project-detail-heading', 'data-active': true }).findByProps({ className: 'project-detail-title' }).children.join(''), second.title);
   } finally { if (view) await act(() => view.unmount()); }
 });
 
