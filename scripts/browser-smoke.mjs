@@ -38,14 +38,33 @@ try {
   assert.equal(await page.locator('canvas').count(), 0);
   await page.reload();
   await page.getByRole('button', { name: 'Enable motion', exact: true }).waitFor();
-  await page.locator('#projects .project-file summary').first().click();
-  assert.ok(await page.locator('#projects .project-file').first().evaluate(el => el.open));
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.getByRole('button', { name: 'Next project' }).click();
+  assert.equal((await page.locator('#projects [aria-live="polite"]').textContent()).trim(), '02 / 05');
+  assert.ok(await page.locator('#projects .project-carousel-track').evaluate(el => el.scrollLeft > 0));
+  assert.equal(await page.locator('#projects .project-carousel-tab[aria-current="true"]').textContent(), 'CharityLink');
+  for (const position of ['03', '04', '05']) {
+    await page.getByRole('button', { name: 'Next project' }).click();
+    await page.waitForFunction(value => document.querySelector('#projects [aria-live="polite"]')?.textContent?.trim() === `${value} / 05`, position);
+  }
+  assert.ok(await page.locator('#projects .project-carousel-tab[aria-current="true"]').evaluate((tab) => {
+    const viewport = tab.parentElement.getBoundingClientRect();
+    const bounds = tab.getBoundingClientRect();
+    return bounds.left >= viewport.left && bounds.right <= viewport.right;
+  }));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.locator('#projects .project-carousel-slide').nth(1).locator('.project-file summary').click();
+  assert.ok(await page.locator('#projects .project-carousel-slide').nth(1).locator('.project-file').evaluate(el => el.open));
   await page.getByRole('button', { name: 'Backend / API', exact: true }).click();
+  assert.equal((await page.locator('#projects [aria-live="polite"]').textContent()).trim(), '01 / 02');
+  assert.ok(await page.getByRole('button', { name: 'Backend / API', exact: true }).evaluate(el => el === document.activeElement));
   await page.locator('.cabinet-index summary').click();
   assert.equal(await page.locator('.cabinet-index a[href^="#project-"]').count(), 2);
-  await page.locator('#skills .skill-evidence summary').first().click();
-  await page.locator('#skills .skill-evidence a').first().click();
+  const javaEvidence = page.locator('#skills .skill-evidence').filter({ hasText: /^Java\s/ });
+  await javaEvidence.locator('summary').click();
+  await javaEvidence.locator('a').click();
   assert.equal(await page.getByRole('button', { name: 'All', exact: true }).getAttribute('aria-pressed'), 'true');
+  await page.waitForFunction(() => document.querySelector('#projects .project-carousel-tab[aria-current="true"]')?.textContent === 'Stock Management System');
   await page.getByRole('button', { name: /POST.*\/api\/contact/ }).click();
   await page.getByLabel('Request body (JSON)').fill('{bad');
   await page.getByRole('button', { name: 'Run simulated request' }).click();
@@ -91,7 +110,7 @@ try {
   }
   await reduced.close();
   assert.deepEqual(errors, []);
-  console.log('Browser checks passed: motion persistence, project files, skill links, cabinet filters, simulated POST, five viewport widths, mobile shortcuts, and gallery dialog keyboard behavior.');
+  console.log('Browser checks passed: carousel navigation, motion persistence, project files, skill links, cabinet filters, simulated POST, five viewport widths, mobile shortcuts, and gallery dialog keyboard behavior.');
 } finally {
   await browser?.close();
   await server.close();

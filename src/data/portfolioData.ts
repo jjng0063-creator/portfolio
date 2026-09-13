@@ -52,15 +52,7 @@ export interface ProjectItem {
   imageAlt?: string;
   demoUrl?: string;
   githubUrl?: string;
-  /**
-   * Featured projects get the full card — screenshot, problem/approach/result,
-   * tags. Everything else drops to a one-line row in an "Also built" list
-   * underneath, so the section has a shape instead of five identical cards.
-   *
-   * Two or three featured is the right number: if everything is featured,
-   * nothing is. With none flagged, every project renders full — the section can
-   * never come out as a list of thin rows with nothing to anchor it.
-   */
+  /** Featured projects appear first in the project carousel. */
   featured: boolean;
 }
 

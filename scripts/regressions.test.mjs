@@ -48,6 +48,23 @@ test('project gallery switches screenshots and exposes an inline case study', as
   } finally { if (view) await act(() => view.unmount()); }
 });
 
+test('project carousel controls update the announced and selected project', async () => {
+  const { Projects } = await load('components/sections/Projects.tsx');
+  let view;
+  try {
+    await act(() => { view = create(React.createElement(Projects, {
+      filter: 'All', onFilterChange() {},
+    })); });
+    const total = PORTFOLIO_DATA.projects.length;
+    const secondTitle = view.root.findAllByProps({ className: 'project-carousel-tab' })[1].children.join('');
+    assert.equal(view.root.findByProps({ 'aria-live': 'polite' }).children.join(''), `01 / ${String(total).padStart(2, '0')}`);
+    await act(() => view.root.findByProps({ 'aria-label': 'Next project' }).props.onClick());
+    assert.equal(view.root.findByProps({ 'aria-live': 'polite' }).children.join(''), `02 / ${String(total).padStart(2, '0')}`);
+    assert.equal(view.root.findAllByProps({ 'aria-current': 'true' }).length, 1);
+    assert.equal(view.root.findAllByProps({ 'aria-current': 'true' })[0].children.join(''), secondTitle);
+  } finally { if (view) await act(() => view.unmount()); }
+});
+
 test('motion control switches to the static cabinet and mobile shortcuts remain available', async () => {
   const { App } = await load('App.tsx');
   const { CabinetStage } = await load('components/cabinet/CabinetStage.tsx');
