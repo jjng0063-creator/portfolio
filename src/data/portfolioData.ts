@@ -153,7 +153,7 @@ const raw = content as unknown as SiteContent;
 /**
  * Prefix a path inside `public/` with the site's base.
  *
- * The site is served from a subpath (`/portfolio-v2/`), and Vite rewrites asset
+ * The site is served from a subpath (`/portfolio/`), and Vite rewrites asset
  * URLs it can see in HTML and CSS — but not strings inside a JSON file, which is
  * where these live. Without this, "me.jpeg" would resolve against the domain
  * root and 404 in production while working perfectly in dev, which is the worst

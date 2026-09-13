@@ -13,6 +13,16 @@ matter.
 
 ## [Unreleased]
 
+### Changed
+
+- The site moved to <https://jjng0063-creator.github.io/portfolio/>, taking over
+  the previous portfolio's address; that site now lives at `/portfolio-v1/`.
+  The repository was renamed from `portfolio-v2` to `portfolio` and the Vite
+  base is now `/portfolio/`. The old `/portfolio-v2/` address no longer resolves.
+- The project showcase is a compact 3D cover gallery: angled neighbouring covers
+  that stay inside the stage, category-based fallback covers, and one flat
+  detail panel below that keeps its height as the selection changes.
+
 ### Fixed
 
 - Long playground JSON now scrolls within its panel instead of widening the

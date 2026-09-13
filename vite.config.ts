@@ -123,11 +123,11 @@ function siteMetaPlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Served from https://jjng0063-creator.github.io/portfolio-v2/, so every asset
+  // Served from https://jjng0063-creator.github.io/portfolio/, so every asset
   // URL needs the repo name prefixed. Vite rewrites paths it can see in HTML and
   // CSS; paths that live in content.json go through withBase() in
   // portfolioData.ts instead, since Vite cannot see inside a JSON string.
-  base: '/portfolio-v2/',
+  base: '/portfolio/',
 
   plugins: [react(), tailwindcss(), siteMetaPlugin()],
 

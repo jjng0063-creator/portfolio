@@ -6,7 +6,7 @@ const server = await createServer({ server: { host: '127.0.0.1', port: 5175, str
   name: 'gallery-test-fixture', configureServer(devServer) {
 // A gallery fixture exercises images without inventing screenshots for the portfolio.
 devServer.middlewares.use(async (req, res, next) => {
-  if (req.url !== '/portfolio-v2/__gallery') return next();
+  if (req.url !== '/portfolio/__gallery') return next();
   res.setHeader('Content-Type', 'text/html');
   res.end(await devServer.transformIndexHtml('/__gallery', `<html><head></head><body><div id="root"></div><script type="module">
     import React from 'react';
@@ -14,8 +14,8 @@ devServer.middlewares.use(async (req, res, next) => {
     import {ProjectFile} from '/src/components/sections/ProjectFile.tsx';
     import '/src/index.css'; import '/src/features.css';
     createRoot(document.getElementById('root')).render(React.createElement(ProjectFile,{project:{
-      id:'fixture',title:'Gallery fixture',tags:[],approach:'Test fixture',image:'/portfolio-v2/me.jpeg',imageAlt:'First image',
-      screenshots:[{src:'/portfolio-v2/me.jpeg',alt:'Second image'}]
+      id:'fixture',title:'Gallery fixture',tags:[],approach:'Test fixture',image:'/portfolio/me.jpeg',imageAlt:'First image',
+      screenshots:[{src:'/portfolio/me.jpeg',alt:'Second image'}]
     }}));
   </script></body></html>`));
 });
@@ -32,7 +32,7 @@ try {
   page.setDefaultTimeout(10000);
   const errors = [];
   page.on('pageerror', error => { errors.push(error.message); console.error(error.message); });
-  await page.goto('http://127.0.0.1:5175/portfolio-v2/');
+  await page.goto('http://127.0.0.1:5175/portfolio/');
   await page.getByRole('heading', { level: 1 }).waitFor();
   await page.getByRole('button', { name: 'Reduce motion', exact: true }).click();
   assert.equal(await page.locator('canvas').count(), 0);
@@ -122,10 +122,10 @@ try {
   if (process.env.SCREENSHOT_DIR) {
     await page.screenshot({ path: `${process.env.SCREENSHOT_DIR}/portfolio-mobile.png` });
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('http://127.0.0.1:5175/portfolio-v2/#projects');
+    await page.goto('http://127.0.0.1:5175/portfolio/#projects');
     await page.screenshot({ path: `${process.env.SCREENSHOT_DIR}/portfolio-projects.png` });
   }
-  await page.goto('http://127.0.0.1:5175/portfolio-v2/__gallery');
+  await page.goto('http://127.0.0.1:5175/portfolio/__gallery');
   await page.getByRole('button', { name: 'Next screenshot', exact: true }).click();
   await page.getByRole('button', { name: 'Screenshot 2: Second image' }).waitFor();
   assert.equal(await page.getByRole('button', { name: 'Screenshot 2: Second image' }).getAttribute('aria-pressed'), 'true');
@@ -158,7 +158,7 @@ try {
   const reduced = await browser.newContext({ reducedMotion: 'reduce', colorScheme: 'dark', viewport: { width: 1440, height: 900 } });
   const reducedPage = await reduced.newPage();
   reducedPage.on('pageerror', error => errors.push(error.message));
-  await reducedPage.goto('http://127.0.0.1:5175/portfolio-v2/');
+  await reducedPage.goto('http://127.0.0.1:5175/portfolio/');
   await reducedPage.getByRole('button', { name: 'Enable motion', exact: true }).waitFor();
   assert.equal(await reducedPage.locator('canvas').count(), 0);
   await reducedPage.getByRole('button', { name: 'Enable motion', exact: true }).click();
