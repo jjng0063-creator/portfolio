@@ -220,10 +220,11 @@
         "PocketBase"
       ],
       "image": "work/mtzhzqnh-face-attendance.jpg",
-      "imageAlt": "",
+      "imageAlt": "Sample",
       "demoUrl": "",
       "githubUrl": "",
-      "featured": true
+      "featured": true,
+      "screenshots": []
     },
     {
       "id": "charitylink",
