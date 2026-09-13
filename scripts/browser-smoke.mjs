@@ -70,6 +70,27 @@ try {
     await page.screenshot({ path: `${process.env.SCREENSHOT_DIR}/portfolio-projects.png` });
   }
   await page.goto('http://127.0.0.1:5175/portfolio-v2/__gallery');
+  await page.getByRole('button', { name: 'Next screenshot', exact: true }).click();
+  await page.getByRole('button', { name: 'Screenshot 2: Second image' }).waitFor();
+  assert.equal(await page.getByRole('button', { name: 'Screenshot 2: Second image' }).getAttribute('aria-pressed'), 'true');
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await page.getByRole('button', { name: 'Screenshot 1: First image' }).getAttribute('aria-pressed'), 'true');
+  if (process.env.SCREENSHOT_DIR) {
+    await page.locator('.gallery-card[data-active="true"]').evaluate(el => Promise.all(el.getAnimations().map(animation => animation.finished)));
+    await page.screenshot({ path: `${process.env.SCREENSHOT_DIR}/gallery-desktop.png` });
+  }
+  await page.setViewportSize({ width: 375, height: 812 });
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Gallery fits mobile');
+  const stage = page.locator('.gallery-stage');
+  await stage.dispatchEvent('pointerdown', { clientX: 270 });
+  await stage.dispatchEvent('pointerup', { clientX: 100 });
+  assert.equal(await page.getByRole('button', { name: 'Screenshot 2: Second image' }).getAttribute('aria-pressed'), 'true');
+  await stage.dispatchEvent('pointerdown', { clientX: 100 });
+  await stage.dispatchEvent('pointerup', { clientX: 100 });
+  if (process.env.SCREENSHOT_DIR) {
+    await page.locator('.gallery-card[data-active="true"]').evaluate(el => Promise.all(el.getAnimations().map(animation => animation.finished)));
+    await page.screenshot({ path: `${process.env.SCREENSHOT_DIR}/gallery-mobile.png` });
+  }
   await page.getByRole('button', { name: 'Screenshot 2: Second image' }).click();
   await page.getByRole('button', { name: 'Enlarge screenshot: Second image' }).click();
   await page.getByRole('dialog').waitFor();

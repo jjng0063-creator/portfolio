@@ -15,6 +15,22 @@ summary { cursor: pointer; }
 .gallery-image { display: block; position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 10px; background: var(--bg-sunken); cursor: zoom-in; }
 .gallery-image img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .gallery-enlarge { position: absolute; right: .75rem; bottom: .75rem; padding: .5rem; background: var(--bg); color: var(--text); border-radius: 6px; }
+.gallery-stage { position: relative; height: clamp(230px, 36vw, 460px); perspective: 1000px; overflow: hidden; touch-action: pan-y; isolation: isolate; }
+.gallery-stage .gallery-card { position: absolute; top: 50%; left: 50%; width: 72%; max-height: 85%; border: 1px solid var(--border-strong); border-radius: 12px; box-shadow: 0 22px 35px -20px rgb(0 0 0 / .45); transition: transform 700ms cubic-bezier(.22,.8,.22,1), opacity 500ms, filter 500ms; backface-visibility: hidden; }
+.gallery-card[data-active="false"] { filter: brightness(.55) saturate(.65); cursor: pointer; }
+.gallery-card[data-active="true"] { filter: brightness(1); }
+.gallery-card:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 4px; }
+.gallery-stage-single .gallery-card { width: 94%; }
+.gallery-caption { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .75rem 0; color: var(--text-2); font-size: var(--step--1); }
+.gallery-caption .label { flex-shrink: 0; }
+.gallery-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; padding-top: .75rem; }
+@media (max-width: 600px) {
+  .gallery-stage { height: clamp(190px, 57vw, 300px); perspective: 650px; }
+  .gallery-stage .gallery-card { width: 82%; border-radius: 8px; }
+  .gallery-stage-single .gallery-card { width: 96%; }
+  .gallery-enlarge { font-size: .6rem; padding: .35rem; right: .4rem; bottom: .4rem; }
+}
+@media (prefers-reduced-motion: reduce) { .gallery-stage .gallery-card { transition: none; } }
 .image-dialog { margin: auto; width: min(92vw, 1100px); max-height: 90svh; overflow: auto; padding: 1.25rem; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg); color: var(--text); }
 .image-dialog::backdrop { background: rgb(0 0 0 / .8); }
 .image-dialog img { display: block; max-width: 100%; max-height: 70svh; object-fit: contain; margin: auto; }
