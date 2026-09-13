@@ -19,10 +19,10 @@ summary { cursor: pointer; }
 .project-carousel-track { position: relative; width: 100%; height: 100%; margin: 0; padding: 0; list-style: none; perspective: 1000px; }
 .project-carousel-slide { position: absolute; top: 50%; left: 50%; width: min(26.25rem, 50%); transition: transform 450ms var(--ease), opacity 450ms var(--ease), filter 450ms var(--ease); will-change: transform; }
 .project-carousel-slide[data-position="active"] { z-index: 2; transform: translate(-50%, -50%); }
-.project-carousel-slide[data-position="previous"] { z-index: 1; transform: translate(-50%, -50%) translateX(-56%) translateZ(-72px) rotateY(18deg) scale(.9); opacity: .8; filter: brightness(.9); }
-.project-carousel-slide[data-position="next"] { z-index: 1; transform: translate(-50%, -50%) translateX(56%) translateZ(-72px) rotateY(-18deg) scale(.9); opacity: .8; filter: brightness(.9); }
+.project-carousel-slide[data-position="previous"] { z-index: 1; transform: translate(-50%, -50%) translateX(-56%) translateZ(-72px) rotateY(18deg) scale(.9); opacity: .8; filter: blur(3px) brightness(.85); }
+.project-carousel-slide[data-position="next"] { z-index: 1; transform: translate(-50%, -50%) translateX(56%) translateZ(-72px) rotateY(-18deg) scale(.9); opacity: .8; filter: blur(3px) brightness(.85); }
 .project-carousel-slide[data-position="hidden"] { visibility: hidden; pointer-events: none; opacity: 0; transform: translate(-50%, -50%) scale(.86); }
-.project-carousel-cover { display: block; width: 100%; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg-elev); box-shadow: var(--shadow-md); cursor: pointer; }
+.project-carousel-cover { position: relative; display: block; width: 100%; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg-elev); box-shadow: var(--shadow-md); cursor: pointer; }
 .project-carousel-cover:active { transform: scale(.985); }
 .project-cover-image { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; background: var(--bg-sunken); }
 .project-cover-fallback { position: relative; display: grid; width: 100%; min-height: 0; aspect-ratio: 16 / 10; padding: clamp(1.1rem, 2.5vw, 1.75rem); color: var(--text); background: linear-gradient(135deg, var(--bg-elev-2), var(--bg-elev)); }
@@ -76,6 +76,8 @@ summary { cursor: pointer; }
 .image-dialog { margin: auto; width: min(92vw, 1100px); max-height: 90svh; overflow: auto; padding: 1.25rem; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg); color: var(--text); }
 .image-dialog::backdrop { background: rgb(0 0 0 / .8); }
 .image-dialog img { display: block; max-width: 100%; max-height: 70svh; object-fit: contain; margin: auto; }
+.project-image-zoom { max-height: 72svh; overflow: auto; cursor: zoom-in; }
+.project-image-zoom[data-zoomed="true"] { cursor: zoom-out; }
 .request-editor { width: 100%; border: 1px solid var(--border); background: var(--bg-sunken); color: var(--text); border-radius: 10px; padding: .85rem; font-family: 'Geist Mono', monospace; font-size: var(--step--1); resize: vertical; }
 .cabinet-stage > .cabinet-guide { display: none; }
 @media (min-width: 1280px) {

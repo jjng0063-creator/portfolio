@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Activity, AppWindow, ArrowLeft, ArrowRight, ArrowUpRight, Cloud, Palette, Server } from 'lucide-react';
 import {
   PORTFOLIO_DATA,
@@ -56,6 +56,9 @@ export const Projects: React.FC<{
   const didSwipe = useRef(false);
   const indexRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const viewer = useRef<HTMLDialogElement>(null);
+  const viewerImage = useRef<HTMLImageElement>(null);
+  const [zoom, setZoom] = useState<{ width: number; x: number; y: number } | null>(null);
 
   const goTo = (index: number, playSound = true) => {
     const next = Math.max(0, Math.min(index, projects.length - 1));
@@ -89,6 +92,16 @@ export const Projects: React.FC<{
     });
   }, [activeIndex, filter]);
 
+  // Zooming doubles the fitted image, then scrolls so the point that was clicked is centred.
+  useLayoutEffect(() => {
+    const frame = viewerImage.current?.parentElement;
+    if (!zoom || !frame) return;
+    frame.scrollTo({
+      left: frame.scrollWidth * zoom.x - frame.clientWidth / 2,
+      top: frame.scrollHeight * zoom.y - frame.clientHeight / 2,
+    });
+  }, [zoom]);
+
   if (!activeProject) {
     return (
       <Section id="projects" label="Projects" title="Things I've built.">
@@ -97,12 +110,33 @@ export const Projects: React.FC<{
     );
   }
 
+  const activeShot = coverShot(activeProject);
+
   const selectCover = (index: number) => {
     if (didSwipe.current) {
       didSwipe.current = false;
       return;
     }
+    if (index === activeIndex && activeShot) {
+      setZoom(null);
+      viewer.current?.showModal();
+      return;
+    }
     goTo(index);
+  };
+
+  const toggleZoom = (clientX?: number, clientY?: number) => {
+    const image = viewerImage.current;
+    if (zoom || !image) {
+      setZoom(null);
+      return;
+    }
+    const box = image.getBoundingClientRect();
+    setZoom({
+      width: box.width * 2,
+      x: clientX === undefined ? 0.5 : (clientX - box.left) / box.width,
+      y: clientY === undefined ? 0.5 : (clientY - box.top) / box.height,
+    });
   };
 
   return (
@@ -194,11 +228,14 @@ export const Projects: React.FC<{
                       className="project-carousel-cover"
                       data-project-cover
                       aria-current={selected ? 'true' : undefined}
-                      aria-label={`Select project: ${project.title}`}
+                      aria-label={selected && activeShot ? `View full size: ${project.title}` : `Select project: ${project.title}`}
                       tabIndex={visible ? 0 : -1}
                       onClick={() => selectCover(index)}
                     >
                       <ProjectCover project={project} index={index} />
+                      {selected && activeShot && (
+                        <span className="gallery-enlarge label" aria-hidden="true">View full size ↗</span>
+                      )}
                     </button>
                   </li>
                 );
@@ -258,6 +295,37 @@ export const Projects: React.FC<{
           )}
 
           <ProjectDetails projects={projects} active={activeProject} />
+
+          {activeShot && (
+            <dialog
+              ref={viewer}
+              className="image-dialog"
+              aria-label={`${activeProject.title} image viewer`}
+              onClick={(event) => { if (event.target === event.currentTarget) viewer.current?.close(); }}
+              onClose={() => setZoom(null)}
+            >
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <p>{activeShot.alt}</p>
+                <div className="flex gap-2">
+                  <button type="button" className="file-button" onClick={() => toggleZoom()}>
+                    {zoom ? 'Zoom out' : 'Zoom in'}
+                  </button>
+                  <button type="button" className="file-button" autoFocus onClick={() => viewer.current?.close()}>
+                    Close
+                  </button>
+                </div>
+              </div>
+              <div className="project-image-zoom" data-zoomed={zoom !== null}>
+                <img
+                  ref={viewerImage}
+                  src={activeShot.src}
+                  alt={activeShot.alt}
+                  style={zoom ? { width: zoom.width, maxWidth: 'none', maxHeight: 'none' } : undefined}
+                  onClick={(event) => toggleZoom(event.clientX, event.clientY)}
+                />
+              </div>
+            </dialog>
+          )}
         </div>
       </Emerge>
     </Section>
@@ -271,13 +339,26 @@ function getCarouselPosition(offset: number): CarouselPosition {
   return 'hidden';
 }
 
-function ProjectCover({ project, index }: { project: ProjectItem; index: number }) {
-  const shot = project.image
+function coverShot(project: ProjectItem) {
+  return project.image
     ? { src: project.image, alt: project.imageAlt || project.title }
     : project.screenshots?.find((screenshot) => screenshot.src);
+}
+
+function ProjectCover({ project, index }: { project: ProjectItem; index: number }) {
+  const shot = coverShot(project);
 
   if (shot) {
-    return <img className="project-cover-image" src={shot.src} alt={shot.alt} loading="lazy" decoding="async" />;
+    return (
+      <img
+        className="project-cover-image"
+        src={shot.src}
+        alt={shot.alt}
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+      />
+    );
   }
 
   const Icon = COVER_ICONS[project.category];

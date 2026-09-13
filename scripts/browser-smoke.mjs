@@ -20,6 +20,18 @@ devServer.middlewares.use(async (req, res, next) => {
   </script></body></html>`));
 });
   },
+}, {
+  // Project images live in content.json, which the admin panel edits. Pin them so
+  // these checks do not change meaning whenever a new image is published.
+  name: 'project-image-fixture', enforce: 'pre',
+  transform(code, id) {
+    if (!id.split('?')[0].endsWith('/src/data/content.json')) return;
+    const content = JSON.parse(code);
+    content.projects.forEach((project, index) => Object.assign(project, {
+      image: index === 0 ? 'me.jpeg' : '', imageAlt: index === 0 ? 'Fixture cover' : '', screenshots: [],
+    }));
+    return JSON.stringify(content);
+  },
 }] });
 let browser;
 try {
@@ -92,6 +104,20 @@ try {
   assert.equal(layoutAfter.navigation.y, layoutBefore.navigation.y);
   await page.locator('.project-carousel-slide[data-position="next"] [data-project-cover]').click();
   assert.equal((await page.locator('#projects [role="status"]').textContent()).trim(), '04 / 05');
+  assert.match(await page.locator('.project-carousel-slide[data-position="previous"]').evaluate(el => getComputedStyle(el).filter), /blur/);
+  assert.equal(await page.locator('.project-carousel-slide[data-position="active"]').evaluate(el => getComputedStyle(el).filter), 'none');
+  await page.getByRole('button', { name: 'Face Recognition Attendance System', exact: true }).click();
+  await page.getByRole('button', { name: 'View full size: Face Recognition Attendance System' }).click();
+  const viewer = page.getByRole('dialog', { name: 'Face Recognition Attendance System image viewer' });
+  await viewer.waitFor();
+  const viewerImageWidth = () => viewer.getByRole('img').evaluate(img => img.getBoundingClientRect().width);
+  const fittedWidth = await viewerImageWidth();
+  await viewer.getByRole('button', { name: 'Zoom in' }).click();
+  assert.ok(Math.abs(await viewerImageWidth() - fittedWidth * 2) < 1, 'Zoom doubles the fitted image');
+  await viewer.getByRole('img').click();
+  assert.ok(Math.abs(await viewerImageWidth() - fittedWidth) < 1, 'Clicking the zoomed image zooms back out');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.getByRole('dialog').count(), 0);
   await page.getByRole('button', { name: 'Backend / API', exact: true }).click();
   assert.equal((await page.locator('#projects [role="status"]').textContent()).trim(), '01 / 02');
   assert.ok(await page.getByRole('button', { name: 'Backend / API', exact: true }).evaluate(el => el === document.activeElement));

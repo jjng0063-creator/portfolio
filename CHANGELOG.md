@@ -37,6 +37,9 @@ matter.
 
 ### Added
 
+- The selected project cover opens a full-size image viewer with zoom: the
+  Zoom button doubles the image, and clicking the image zooms into that spot.
+  Neighbouring covers are blurred so the selection stands out.
 - Expandable project files using the existing problem, approach, and result copy,
   with optional role, decisions, challenges, and lessons editable in the admin.
 - Numbered screenshot galleries and a native full-size dialog with Escape,
