@@ -61,8 +61,34 @@ test('project carousel controls update the announced and selected project', asyn
     assert.equal(view.root.findByProps({ 'aria-live': 'polite' }).children.join(''), `01 / ${String(total).padStart(2, '0')}`);
     await act(() => view.root.findByProps({ 'aria-label': 'Next project' }).props.onClick());
     assert.equal(view.root.findByProps({ 'aria-live': 'polite' }).children.join(''), `02 / ${String(total).padStart(2, '0')}`);
-    assert.equal(view.root.findAllByProps({ 'aria-current': 'true' }).length, 1);
-    assert.equal(view.root.findAllByProps({ 'aria-current': 'true' })[0].children.join(''), secondTitle);
+    const selectedTabs = view.root.findAllByProps({ className: 'project-carousel-tab', 'aria-current': 'true' });
+    assert.equal(selectedTabs.length, 1);
+    assert.equal(selectedTabs[0].children.join(''), secondTitle);
+  } finally { if (view) await act(() => view.unmount()); }
+});
+
+test('project carousel keeps one selected detail panel outside moving covers', async () => {
+  const { Projects } = await load('components/sections/Projects.tsx');
+  let view;
+  try {
+    await act(() => { view = create(React.createElement(Projects, {
+      filter: 'All', onFilterChange() {},
+    })); });
+    const [first, second] = PORTFOLIO_DATA.projects;
+    const stage = view.root.findByProps({ className: 'project-carousel-stage' });
+    const detail = view.root.findByProps({ className: 'project-detail-panel' });
+    assert.equal(stage.findAllByType('article').length, 0);
+    assert.equal(view.root.findAllByProps({ className: 'project-file' }).length, 1);
+    assert.equal(detail.props.id, undefined);
+    assert.deepEqual(
+      view.root.findAllByProps({ 'data-project-anchor': true }).map((anchor) => anchor.props.id),
+      PORTFOLIO_DATA.projects.map((project) => `project-${project.id}`)
+    );
+    assert.equal(detail.findByProps({ 'data-active': true }).findByProps({ className: 'project-detail-title' }).children.join(''), first.title);
+    await act(() => view.root.findByProps({ 'aria-label': 'Next project' }).props.onClick());
+    const updatedDetail = view.root.findByProps({ className: 'project-detail-panel' });
+    assert.equal(updatedDetail.props.id, undefined);
+    assert.equal(updatedDetail.findByProps({ 'data-active': true }).findByProps({ className: 'project-detail-title' }).children.join(''), second.title);
   } finally { if (view) await act(() => view.unmount()); }
 });
 
@@ -138,7 +164,7 @@ test('cabinet folders match rendered projects after filtering and resetting', as
       const button = view.root.findAllByType('button').find(b => b.children.includes(category));
       await act(() => button.props.onClick());
       const folders = view.root.findByType(CabinetStage).props.drawers.find(d => d.id === 'projects').files;
-      const rendered = view.root.findAll(n => typeof n.type === 'string' && n.props.id?.startsWith('project-'));
+      const rendered = view.root.findAllByProps({ 'data-project-anchor': true });
       assert.deepEqual(folders.map(f => f.targetId).sort(), rendered.map(n => n.props.id).sort());
     }
   } finally {

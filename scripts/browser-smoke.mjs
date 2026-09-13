@@ -40,14 +40,22 @@ try {
   await page.getByRole('button', { name: 'Enable motion', exact: true }).waitFor();
   await page.setViewportSize({ width: 375, height: 900 });
   await page.getByRole('button', { name: 'Next project' }).click();
-  assert.equal((await page.locator('#projects [aria-live="polite"]').textContent()).trim(), '02 / 05');
+  assert.equal((await page.locator('#projects [role="status"]').textContent()).trim(), '02 / 05');
+  assert.equal(await page.locator('#projects [role="status"]').getAttribute('aria-label'), 'Project 2 of 5: CharityLink');
   assert.equal(await page.locator('#projects .project-carousel-slide[data-active="true"]').count(), 1);
-  assert.ok(await page.locator('#projects .project-carousel-slide').first().evaluate(el => getComputedStyle(el).transform.startsWith('matrix3d')));
+  assert.equal(await page.locator('[data-project-stage]').evaluate(el => getComputedStyle(el).touchAction), 'pan-y');
+  const activeCoverText = await page.locator('.project-carousel-slide[data-active="true"] [data-project-cover]').textContent();
+  assert.ok(activeCoverText.includes('Full-Stack'));
+  assert.equal(activeCoverText.includes('CharityLink'), false);
   assert.equal(await page.locator('#projects .project-carousel-tab[aria-current="true"]').textContent(), 'CharityLink');
+  const headingHeight = () => page.locator('[data-project-summary] .project-detail-heading[data-active="true"]').evaluate(el => el.getBoundingClientRect().height);
+  const firstHeadingHeight = await headingHeight();
   for (const position of ['03', '04', '05']) {
     await page.getByRole('button', { name: 'Next project' }).click();
-    await page.waitForFunction(value => document.querySelector('#projects [aria-live="polite"]')?.textContent?.trim() === `${value} / 05`, position);
+    await page.waitForFunction(value => document.querySelector('#projects [role="status"]')?.textContent?.trim() === `${value} / 05`, position);
+    assert.equal(await headingHeight(), firstHeadingHeight, 'Project summaries keep one reserved height on mobile');
   }
+  assert.ok(await page.getByRole('button', { name: 'Next project' }).isDisabled());
   assert.ok(await page.locator('#projects .project-carousel-tab[aria-current="true"]').evaluate((tab) => {
     const viewport = tab.parentElement.getBoundingClientRect();
     const bounds = tab.getBoundingClientRect();
@@ -55,10 +63,37 @@ try {
   }));
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.getByRole('button', { name: 'CharityLink', exact: true }).click();
-  await page.locator('#projects .project-carousel-slide').nth(1).locator('.project-file summary').click();
-  assert.ok(await page.locator('#projects .project-carousel-slide').nth(1).locator('.project-file').evaluate(el => el.open));
+  // Page coordinates, so a scroll caused by focusing or clicking is not mistaken for a layout shift.
+  const measureLayout = () => page.locator('#projects').evaluate((section) => {
+    const box = (selector) => {
+      const { y, height } = section.querySelector(selector).getBoundingClientRect();
+      return { y: y + scrollY, height };
+    };
+    return { stage: box('[data-project-stage]'), navigation: box('[data-project-navigation]') };
+  });
+  const layoutBefore = await measureLayout();
+  assert.ok(layoutBefore.stage.height >= 270 && layoutBefore.stage.height <= 330);
+  assert.ok(layoutBefore.navigation.y >= layoutBefore.stage.y + layoutBefore.stage.height);
+  assert.ok(layoutBefore.navigation.y <= layoutBefore.stage.y + layoutBefore.stage.height + 32);
+  const projectStage = page.locator('[data-project-stage]');
+  await projectStage.focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.locator('[data-project-summary] .project-detail-heading[data-active="true"] .project-detail-title').textContent(), 'Student Co-curricular Management System');
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await page.locator('[data-project-summary] .project-detail-heading[data-active="true"] .project-detail-title').textContent(), 'CharityLink');
+  await page.locator('[data-project-summary] .project-file summary').click();
+  assert.ok(await page.locator('[data-project-summary] .project-file').evaluate(el => el.open));
+  await page.getByRole('button', { name: 'Student Co-curricular Management System', exact: true }).click();
+  assert.equal(await page.locator('[data-project-summary] .project-detail-heading[data-active="true"] .project-detail-title').textContent(), 'Student Co-curricular Management System');
+  assert.equal(await page.locator('[data-project-summary] .project-file').evaluate(el => el.open), false);
+  const layoutAfter = await measureLayout();
+  assert.equal(layoutAfter.stage.y, layoutBefore.stage.y);
+  assert.equal(layoutAfter.stage.height, layoutBefore.stage.height);
+  assert.equal(layoutAfter.navigation.y, layoutBefore.navigation.y);
+  await page.locator('.project-carousel-slide[data-position="next"] [data-project-cover]').click();
+  assert.equal((await page.locator('#projects [role="status"]').textContent()).trim(), '04 / 05');
   await page.getByRole('button', { name: 'Backend / API', exact: true }).click();
-  assert.equal((await page.locator('#projects [aria-live="polite"]').textContent()).trim(), '01 / 02');
+  assert.equal((await page.locator('#projects [role="status"]').textContent()).trim(), '01 / 02');
   assert.ok(await page.getByRole('button', { name: 'Backend / API', exact: true }).evaluate(el => el === document.activeElement));
   await page.locator('.cabinet-index summary').click();
   assert.equal(await page.locator('.cabinet-index a[href^="#project-"]').count(), 2);
