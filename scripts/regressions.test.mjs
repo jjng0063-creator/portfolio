@@ -6,6 +6,7 @@ import { createServer } from 'vite';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 globalThis.window = {
+  location: { hash: '' },
   matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} }),
   addEventListener() {}, removeEventListener() {},
   requestIdleCallback: () => 1, cancelIdleCallback() {},

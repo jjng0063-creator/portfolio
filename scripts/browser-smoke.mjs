@@ -41,7 +41,8 @@ try {
   await page.setViewportSize({ width: 375, height: 900 });
   await page.getByRole('button', { name: 'Next project' }).click();
   assert.equal((await page.locator('#projects [aria-live="polite"]').textContent()).trim(), '02 / 05');
-  assert.ok(await page.locator('#projects .project-carousel-track').evaluate(el => el.scrollLeft > 0));
+  assert.equal(await page.locator('#projects .project-carousel-slide[data-active="true"]').count(), 1);
+  assert.ok(await page.locator('#projects .project-carousel-slide').first().evaluate(el => getComputedStyle(el).transform.startsWith('matrix3d')));
   assert.equal(await page.locator('#projects .project-carousel-tab[aria-current="true"]').textContent(), 'CharityLink');
   for (const position of ['03', '04', '05']) {
     await page.getByRole('button', { name: 'Next project' }).click();
@@ -53,6 +54,7 @@ try {
     return bounds.left >= viewport.left && bounds.right <= viewport.right;
   }));
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByRole('button', { name: 'CharityLink', exact: true }).click();
   await page.locator('#projects .project-carousel-slide').nth(1).locator('.project-file summary').click();
   assert.ok(await page.locator('#projects .project-carousel-slide').nth(1).locator('.project-file').evaluate(el => el.open));
   await page.getByRole('button', { name: 'Backend / API', exact: true }).click();

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 import {
   PORTFOLIO_DATA,
@@ -25,13 +25,15 @@ export const Projects: React.FC<{
   filter: 'All' | ProjectCategory;
   onFilterChange: (filter: 'All' | ProjectCategory) => void;
 }> = ({ onSound, filter, onFilterChange }) => {
-  const matches = filter === 'All'
+  const projects = useMemo(() => {
+    const matches = filter === 'All'
     ? PORTFOLIO_DATA.projects
     : PORTFOLIO_DATA.projects.filter((project) => project.category === filter);
-  const projects = [
+    return [
     ...matches.filter((project) => project.featured),
     ...matches.filter((project) => !project.featured),
   ];
+  }, [filter]);
   const available = CATEGORIES.filter(
     (category) => category === 'All' || PORTFOLIO_DATA.projects.some((project) => project.category === category)
   );
@@ -39,25 +41,26 @@ export const Projects: React.FC<{
   const activeIndex = selection.filter === filter
     ? Math.min(selection.index, Math.max(0, projects.length - 1))
     : 0;
-  const trackRef = useRef<HTMLOListElement>(null);
-  const slideRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const pointerStart = useRef<number | null>(null);
   const indexRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const goTo = (index: number, playSound = true) => {
     const next = Math.max(0, Math.min(index, projects.length - 1));
     setSelection({ filter, index: next });
-    slideRefs.current[next]?.scrollIntoView({
-      behavior: document.documentElement.dataset.motion === 'off' ? 'auto' : 'smooth',
-      block: 'nearest',
-      inline: 'start',
-    });
     if (playSound) onSound?.();
   };
 
   useEffect(() => {
-    trackRef.current?.scrollTo({ left: 0, behavior: 'auto' });
-  }, [filter]);
+    const reveal = () => {
+      const target = window.location.hash.slice(1);
+      const index = projects.findIndex(project => itemId.project(project.id) === target);
+      if (index >= 0) setSelection({ filter, index });
+    };
+    reveal();
+    window.addEventListener('hashchange', reveal);
+    return () => window.removeEventListener('hashchange', reveal);
+  }, [filter, projects]);
 
   useEffect(() => {
     const index = indexRef.current;
@@ -68,18 +71,6 @@ export const Projects: React.FC<{
       behavior: document.documentElement.dataset.motion === 'off' ? 'auto' : 'smooth',
     });
   }, [activeIndex, filter]);
-
-  const syncActiveSlide = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    const trackLeft = track.getBoundingClientRect().left;
-    const next = slideRefs.current.reduce((nearest, slide, index) => {
-      if (!slide) return nearest;
-      const distance = Math.abs(slide.getBoundingClientRect().left - trackLeft);
-      return distance < nearest.distance ? { index, distance } : nearest;
-    }, { index: 0, distance: Number.POSITIVE_INFINITY }).index;
-    setSelection({ filter, index: next });
-  };
 
   return (
     <Section
@@ -118,19 +109,42 @@ export const Projects: React.FC<{
 
       <Emerge>
         <ol
-          ref={trackRef}
           id="projects-carousel"
           className="project-carousel-track"
           aria-label="Project showcase"
-          onScroll={syncActiveSlide}
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.target instanceof HTMLElement && event.target.closest('dialog')) return;
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+              event.preventDefault();
+              goTo(activeIndex + (event.key === 'ArrowLeft' ? -1 : 1));
+            }
+          }}
+          onPointerDown={(event) => { pointerStart.current = event.clientX; }}
+          onPointerCancel={() => { pointerStart.current = null; }}
+          onPointerUp={(event) => {
+            if (pointerStart.current !== null && Math.abs(event.clientX - pointerStart.current) > 55) {
+              goTo(activeIndex + (event.clientX < pointerStart.current ? 1 : -1));
+            }
+            pointerStart.current = null;
+          }}
         >
-          {projects.map((project, index) => (
-            <li
+          {projects.map((project, index) => {
+            const offset = index - activeIndex;
+            return <li
               key={project.id}
-              ref={(node) => { slideRefs.current[index] = node; }}
+              data-active={offset === 0}
+              style={{
+                transform: `translateX(${offset * 79}%) translateZ(${offset === 0 ? 0 : -160}px) rotateY(${offset === 0 ? 0 : offset < 0 ? 42 : -42}deg) scale(${offset === 0 ? 1 : .88})`,
+                zIndex: projects.length - Math.abs(offset),
+                visibility: Math.abs(offset) > 1 ? 'hidden' : 'visible',
+              }}
               className="project-carousel-slide"
             >
+              {offset !== 0 && <button type="button" className="project-side-select"
+                aria-label={`Select project: ${project.title}`} onClick={() => goTo(index)} />}
               <article
+                inert={offset !== 0}
                 id={itemId.project(project.id)}
                 className="surface surface-interactive project-card"
                 aria-label={`${project.title}, project ${index + 1} of ${projects.length}`}
@@ -217,8 +231,8 @@ export const Projects: React.FC<{
                   )}
                 </div>
               </article>
-            </li>
-          ))}
+            </li>;
+          })}
         </ol>
 
         {projects.length > 1 && (
