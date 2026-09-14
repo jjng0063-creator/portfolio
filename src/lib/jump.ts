@@ -1,3 +1,5 @@
+import { revealBetween } from './emerge';
+
 /**
  * Jumps to an item on the page without scrolling past the end of its section.
  *
@@ -25,6 +27,10 @@ export function jumpTo(id: string): boolean {
   const sectionTop = box.top + window.scrollY - padTop;
   const sectionEnd = box.bottom + window.scrollY - window.innerHeight + padBottom;
 
-  window.scrollTo({ top: Math.min(itemTop, Math.max(sectionEnd, sectionTop)) });
+  const y = Math.min(itemTop, Math.max(sectionEnd, sectionTop));
+  // Capping the scroll can leave the item low on the screen, where its entrance
+  // animation would hold it half-faded. Show what the jump lands on outright.
+  revealBetween(y, y + window.innerHeight);
+  window.scrollTo({ top: y });
   return true;
 }

@@ -23,6 +23,8 @@ interface Entry {
   /** Eased progress, so the motion lags the scroll slightly instead of snapping. */
   current: number;
   settled: boolean;
+  /** Held fully shown after a jump landed on it, until it leaves the screen. */
+  pinned: boolean;
 }
 
 const entries = new Map<HTMLElement, Entry>();
@@ -42,7 +44,9 @@ function ensureSetup() {
     (records) => {
       for (const record of records) {
         const entry = entries.get(record.target as HTMLElement);
-        if (entry) entry.visible = record.isIntersecting;
+        if (!entry) continue;
+        entry.visible = record.isIntersecting;
+        if (!record.isIntersecting) entry.pinned = false;
       }
       tick();
     },
@@ -109,6 +113,11 @@ function tick() {
     for (const entry of entries.values()) {
       if (!entry.visible) continue;
 
+      if (entry.pinned) {
+        if (!entry.settled) settle(entry);
+        continue;
+      }
+
       const target = progressFor(entry.el, entry.options.index);
 
       // Ease toward the target so fast scrolling still looks fluid.
@@ -130,6 +139,34 @@ function tick() {
   });
 }
 
+/**
+ * Shows every element between two document-space lines at once, and holds it
+ * there until it scrolls out of view.
+ *
+ * Progress is tied to position, so an element a jump leaves low on the screen —
+ * the last item of a short section — would otherwise sit half-emerged.
+ */
+export function revealBetween(top: number, bottom: number) {
+  const all = [...entries.values()];
+  const wasSettled = all.map((entry) => entry.settled);
+
+  // Measure without the entrance transform, which shrinks and shifts the box.
+  // Clear everything, read everything, then write — one layout, not one each.
+  all.forEach(settle);
+  const rects = all.map((entry) => entry.el.getBoundingClientRect());
+
+  all.forEach((entry, i) => {
+    const docTop = rects[i].top + window.scrollY;
+    if (docTop < bottom && docTop + rects[i].height > top) {
+      entry.pinned = true;
+      entry.current = 1;
+    } else if (!wasSettled[i]) {
+      entry.settled = false;
+      apply(entry, entry.current);
+    }
+  });
+}
+
 export function registerEmerge(el: HTMLElement, options: EmergeOptions = {}): () => void {
   ensureSetup();
 
@@ -139,7 +176,7 @@ export function registerEmerge(el: HTMLElement, options: EmergeOptions = {}): ()
   };
 
 
-  const entry: Entry = { el, options: resolved, visible: false, current: 0, settled: false };
+  const entry: Entry = { el, options: resolved, visible: false, current: 0, settled: false, pinned: false };
   entries.set(el, entry);
 
   // Paint the starting state immediately so nothing flashes at full size first.

@@ -182,6 +182,33 @@ test('jumping to an item never scrolls past the end of its section', async () =>
   }
 });
 
+test('a card a jump lands on stays fully shown until it leaves the screen', async () => {
+  const { registerEmerge, revealBetween } = await load('lib/emerge.ts');
+  let io;
+  const frames = [];
+  globalThis.IntersectionObserver = class { constructor(cb) { io = cb; } observe() {} unobserve() {} };
+  globalThis.requestAnimationFrame = (cb) => frames.push(cb);
+  const run = () => { for (let i = 0; i < 50 && frames.length; i++) frames.shift()(0); };
+  Object.assign(window, { innerHeight: 800, scrollY: 0 });
+  // Top at 650 of 800: below the 52% line, so normally still mid-entrance.
+  const card = { style: {}, getBoundingClientRect: () => ({ top: 650, bottom: 750, height: 100 }) };
+  const off = registerEmerge(card);
+  try {
+    io([{ target: card, isIntersecting: true }]); run();
+    assert.match(card.style.filter, /blur/);
+    revealBetween(0, 800); run();
+    assert.equal(card.style.transform, '');
+    assert.equal(card.style.filter, '');
+    io([{ target: card, isIntersecting: false }]);
+    io([{ target: card, isIntersecting: true }]); run();
+    assert.notEqual(card.style.transform, '', 'animates normally again after leaving the screen');
+  } finally {
+    off();
+    globalThis.requestAnimationFrame = () => 1;
+    delete globalThis.IntersectionObserver;
+  }
+});
+
 test('cabinet folders match rendered projects after filtering and resetting', async () => {
   const { App } = await load('App.tsx');
   const { CabinetStage } = await load('components/cabinet/CabinetStage.tsx');
