@@ -1,4 +1,4 @@
-import { revealBetween } from './emerge';
+import { revealLanding } from './emerge';
 
 /**
  * Jumps to an item on the page without scrolling past the end of its section.
@@ -18,19 +18,21 @@ export function jumpTo(id: string): boolean {
   const section = el.closest('section');
   if (!section) return true;
 
-  const root = getComputedStyle(document.documentElement);
-  const padTop = parseFloat(root.scrollPaddingTop) || 0;
-  const padBottom = parseFloat(root.scrollPaddingBottom) || 0;
-  const box = section.getBoundingClientRect();
+  // Measured with entrance animations cleared, and whatever it lands on shown
+  // outright — the cap can leave the item low, where it would sit half-faded.
+  const y = revealLanding(() => {
+    const root = getComputedStyle(document.documentElement);
+    const padTop = parseFloat(root.scrollPaddingTop) || 0;
+    const padBottom = parseFloat(root.scrollPaddingBottom) || 0;
+    const box = section.getBoundingClientRect();
 
-  const itemTop = el.getBoundingClientRect().top + window.scrollY - padTop;
-  const sectionTop = box.top + window.scrollY - padTop;
-  const sectionEnd = box.bottom + window.scrollY - window.innerHeight + padBottom;
+    const itemTop = el.getBoundingClientRect().top + window.scrollY - padTop;
+    const sectionTop = box.top + window.scrollY - padTop;
+    const sectionEnd = box.bottom + window.scrollY - window.innerHeight + padBottom;
 
-  const y = Math.min(itemTop, Math.max(sectionEnd, sectionTop));
-  // Capping the scroll can leave the item low on the screen, where its entrance
-  // animation would hold it half-faded. Show what the jump lands on outright.
-  revealBetween(y, y + window.innerHeight);
+    return Math.min(itemTop, Math.max(sectionEnd, sectionTop));
+  });
+
   window.scrollTo({ top: y });
   return true;
 }

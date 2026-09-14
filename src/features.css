@@ -33,9 +33,6 @@ summary { cursor: pointer; }
 .project-carousel-navigation { display: grid; gap: .75rem; }
 .project-carousel-arrow { display: grid; place-items: center; width: 44px; padding: 0; }
 .project-carousel-arrow:disabled { opacity: .35; cursor: not-allowed; }
-.project-carousel-index { display: flex; gap: .5rem; overflow-x: auto; padding: .2rem .1rem .35rem; scrollbar-width: thin; }
-.project-carousel-tab { flex: 0 0 auto; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: 8px; color: var(--text-3); font-size: var(--step--1); white-space: nowrap; }
-.project-carousel-tab[aria-current="true"] { border-color: var(--border-accent); background: var(--accent-soft); color: var(--accent-text); }
 .project-detail-panel { min-width: 0; padding-top: 1.5rem; border-top: 1px solid var(--border); }
 .project-detail-heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .project-detail-title { color: var(--text); font-size: var(--step-2); font-weight: 700; }

@@ -140,19 +140,23 @@ function tick() {
 }
 
 /**
- * Shows every element between two document-space lines at once, and holds it
- * there until it scrolls out of view.
+ * For a jump: runs `measure` against the real layout, then shows everything the
+ * jump lands on at once and holds it there until it scrolls out of view.
  *
- * Progress is tied to position, so an element a jump leaves low on the screen —
- * the last item of a short section — would otherwise sit half-emerged.
+ * `measure` returns the document-space scroll position being jumped to. It runs
+ * with every entrance transform cleared — a not-yet-emerged wrapper is shrunk
+ * and shifted, so anything measured inside it (the project anchors) reads
+ * hundreds of pixels off. And since progress is tied to position, an element a
+ * jump leaves low on the screen would otherwise sit half-emerged.
  */
-export function revealBetween(top: number, bottom: number) {
+export function revealLanding(measure: () => number): number {
   const all = [...entries.values()];
   const wasSettled = all.map((entry) => entry.settled);
 
-  // Measure without the entrance transform, which shrinks and shifts the box.
   // Clear everything, read everything, then write — one layout, not one each.
   all.forEach(settle);
+  const top = measure();
+  const bottom = top + window.innerHeight;
   const rects = all.map((entry) => entry.el.getBoundingClientRect());
 
   all.forEach((entry, i) => {
@@ -165,6 +169,8 @@ export function revealBetween(top: number, bottom: number) {
       apply(entry, entry.current);
     }
   });
+
+  return top;
 }
 
 export function registerEmerge(el: HTMLElement, options: EmergeOptions = {}): () => void {

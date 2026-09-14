@@ -57,13 +57,13 @@ test('project carousel controls update the announced and selected project', asyn
       filter: 'All', onFilterChange() {},
     })); });
     const total = PORTFOLIO_DATA.projects.length;
-    const secondTitle = view.root.findAllByProps({ className: 'project-carousel-tab' })[1].children.join('');
+    const secondId = view.root.findAllByProps({ className: 'project-carousel-slide' })[1].props['data-project-id'];
     assert.equal(view.root.findByProps({ role: 'status' }).children.join(''), `01 / ${String(total).padStart(2, '0')}`);
     await act(() => view.root.findByProps({ 'aria-label': 'Next project' }).props.onClick());
     assert.equal(view.root.findByProps({ role: 'status' }).children.join(''), `02 / ${String(total).padStart(2, '0')}`);
-    const selectedTabs = view.root.findAllByProps({ className: 'project-carousel-tab', 'aria-current': 'true' });
-    assert.equal(selectedTabs.length, 1);
-    assert.equal(selectedTabs[0].children.join(''), secondTitle);
+    const selectedSlides = view.root.findAllByProps({ className: 'project-carousel-slide', 'data-active': true });
+    assert.equal(selectedSlides.length, 1);
+    assert.equal(selectedSlides[0].props['data-project-id'], secondId);
   } finally { if (view) await act(() => view.unmount()); }
 });
 
@@ -183,7 +183,7 @@ test('jumping to an item never scrolls past the end of its section', async () =>
 });
 
 test('a card a jump lands on stays fully shown until it leaves the screen', async () => {
-  const { registerEmerge, revealBetween } = await load('lib/emerge.ts');
+  const { registerEmerge, revealLanding } = await load('lib/emerge.ts');
   let io;
   const frames = [];
   globalThis.IntersectionObserver = class { constructor(cb) { io = cb; } observe() {} unobserve() {} };
@@ -196,7 +196,12 @@ test('a card a jump lands on stays fully shown until it leaves the screen', asyn
   try {
     io([{ target: card, isIntersecting: true }]); run();
     assert.match(card.style.filter, /blur/);
-    revealBetween(0, 800); run();
+    const y = revealLanding(() => {
+      assert.equal(card.style.transform, '', 'the jump is measured without entrance transforms');
+      return 0;
+    });
+    assert.equal(y, 0);
+    run();
     assert.equal(card.style.transform, '');
     assert.equal(card.style.filter, '');
     io([{ target: card, isIntersecting: false }]);

@@ -54,8 +54,6 @@ export const Projects: React.FC<{
   const activeProject = projects[activeIndex];
   const pointerStart = useRef<number | null>(null);
   const didSwipe = useRef(false);
-  const indexRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const viewer = useRef<HTMLDialogElement>(null);
   const viewerImage = useRef<HTMLImageElement>(null);
   const [zoom, setZoom] = useState<{ width: number; x: number; y: number } | null>(null);
@@ -81,16 +79,6 @@ export const Projects: React.FC<{
     window.addEventListener('hashchange', reveal);
     return () => window.removeEventListener('hashchange', reveal);
   }, [filter, projects]);
-
-  useEffect(() => {
-    const index = indexRef.current;
-    const tab = tabRefs.current[activeIndex];
-    if (!index || !tab) return;
-    index.scrollTo({
-      left: tab.offsetLeft - (index.clientWidth - tab.offsetWidth) / 2,
-      behavior: document.documentElement.dataset.motion === 'off' ? 'auto' : 'smooth',
-    });
-  }, [activeIndex, filter]);
 
   // Zooming doubles the fitted image, then scrolls so the point that was clicked is centred.
   useLayoutEffect(() => {
@@ -275,21 +263,6 @@ export const Projects: React.FC<{
                 >
                   {String(activeIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
                 </span>
-              </div>
-
-              <div ref={indexRef} className="project-carousel-index" role="group" aria-label="Choose a project">
-                {projects.map((project, index) => (
-                  <button
-                    key={project.id}
-                    ref={(node) => { tabRefs.current[index] = node; }}
-                    type="button"
-                    className="project-carousel-tab"
-                    aria-current={activeIndex === index ? 'true' : undefined}
-                    onClick={() => goTo(index)}
-                  >
-                    {project.title}
-                  </button>
-                ))}
               </div>
             </div>
           )}

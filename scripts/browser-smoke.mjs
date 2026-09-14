@@ -59,7 +59,6 @@ try {
   const activeCoverText = await page.locator('.project-carousel-slide[data-active="true"] [data-project-cover]').textContent();
   assert.ok(activeCoverText.includes('Full-Stack'));
   assert.equal(activeCoverText.includes('CharityLink'), false);
-  assert.equal(await page.locator('#projects .project-carousel-tab[aria-current="true"]').textContent(), 'CharityLink');
   const headingHeight = () => page.locator('[data-project-summary] .project-detail-heading[data-active="true"]').evaluate(el => el.getBoundingClientRect().height);
   const firstHeadingHeight = await headingHeight();
   for (const position of ['03', '04', '05']) {
@@ -68,13 +67,9 @@ try {
     assert.equal(await headingHeight(), firstHeadingHeight, 'Project summaries keep one reserved height on mobile');
   }
   assert.ok(await page.getByRole('button', { name: 'Next project' }).isDisabled());
-  assert.ok(await page.locator('#projects .project-carousel-tab[aria-current="true"]').evaluate((tab) => {
-    const viewport = tab.parentElement.getBoundingClientRect();
-    const bounds = tab.getBoundingClientRect();
-    return bounds.left >= viewport.left && bounds.right <= viewport.right;
-  }));
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.getByRole('button', { name: 'CharityLink', exact: true }).click();
+  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Previous project' }).click();
+  assert.equal(await page.locator('#projects [role="status"]').getAttribute('aria-label'), 'Project 2 of 5: CharityLink');
   // Page coordinates, so a scroll caused by focusing or clicking is not mistaken for a layout shift.
   const measureLayout = () => page.locator('#projects').evaluate((section) => {
     const box = (selector) => {
@@ -95,7 +90,7 @@ try {
   assert.equal(await page.locator('[data-project-summary] .project-detail-heading[data-active="true"] .project-detail-title').textContent(), 'CharityLink');
   await page.locator('[data-project-summary] .project-file summary').click();
   assert.ok(await page.locator('[data-project-summary] .project-file').evaluate(el => el.open));
-  await page.getByRole('button', { name: 'Student Co-curricular Management System', exact: true }).click();
+  await page.getByRole('button', { name: 'Next project' }).click();
   assert.equal(await page.locator('[data-project-summary] .project-detail-heading[data-active="true"] .project-detail-title').textContent(), 'Student Co-curricular Management System');
   assert.equal(await page.locator('[data-project-summary] .project-file').evaluate(el => el.open), false);
   const layoutAfter = await measureLayout();
@@ -106,7 +101,7 @@ try {
   assert.equal((await page.locator('#projects [role="status"]').textContent()).trim(), '04 / 05');
   assert.match(await page.locator('.project-carousel-slide[data-position="previous"]').evaluate(el => getComputedStyle(el).filter), /blur/);
   assert.equal(await page.locator('.project-carousel-slide[data-position="active"]').evaluate(el => getComputedStyle(el).filter), 'none');
-  await page.getByRole('button', { name: 'Face Recognition Attendance System', exact: true }).click();
+  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Previous project' }).click();
   await page.getByRole('button', { name: 'View full size: Face Recognition Attendance System' }).click();
   const viewer = page.getByRole('dialog', { name: 'Face Recognition Attendance System image viewer' });
   await viewer.waitFor();
@@ -127,7 +122,7 @@ try {
   await javaEvidence.locator('summary').click();
   await javaEvidence.locator('a').click();
   assert.equal(await page.getByRole('button', { name: 'All', exact: true }).getAttribute('aria-pressed'), 'true');
-  await page.waitForFunction(() => document.querySelector('#projects .project-carousel-tab[aria-current="true"]')?.textContent === 'Stock Management System');
+  await page.waitForFunction(() => document.querySelector('#projects [role="status"]')?.getAttribute('aria-label')?.endsWith(': Stock Management System'));
   await page.getByRole('button', { name: /POST.*\/api\/contact/ }).click();
   await page.getByLabel('Request body (JSON)').fill('{bad');
   await page.getByRole('button', { name: 'Run simulated request' }).click();
