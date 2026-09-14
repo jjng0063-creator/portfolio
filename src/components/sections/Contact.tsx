@@ -8,7 +8,7 @@ import { GithubIcon, LinkedinIcon } from '../ui/Icons';
 
 type SendState = 'idle' | 'sending' | 'sent' | 'error';
 
-export const Contact: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
+export const Contact: React.FC = () => {
   const { profile } = PORTFOLIO_DATA;
   const [copied, setCopied] = useState(false);
   const [state, setState] = useState<SendState>('idle');
@@ -20,7 +20,6 @@ export const Contact: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
     try {
       await navigator.clipboard.writeText(profile.email);
       setCopied(true);
-      onSound?.();
       setTimeout(() => setCopied(false), 2200);
     } catch {
       window.location.href = `mailto:${profile.email}`;
@@ -36,7 +35,6 @@ export const Contact: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
       const subject = encodeURIComponent(`Portfolio enquiry from ${form.name || 'someone'}`);
       const body = encodeURIComponent(`${form.message}\n\n— ${form.name}\n${form.email}`);
       window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
-      onSound?.();
       return;
     }
 
@@ -50,7 +48,6 @@ export const Contact: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
       if (!res.ok) throw new Error(String(res.status));
       setState('sent');
       setForm({ name: '', email: '', message: '' });
-      onSound?.();
     } catch {
       setState('error');
     }

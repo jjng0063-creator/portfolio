@@ -38,7 +38,7 @@ function highlight(json: string): React.ReactNode[] {
   return out;
 }
 
-export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
+export const Playground: React.FC = () => {
   const [selected, setSelected] = useState<ApiEndpoint | undefined>(PORTFOLIO_DATA.apiEndpoints[0]);
   const [running, setRunning] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -59,7 +59,6 @@ export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
     setSelected(endpoint);
     setResult(null);
     setRunning(true);
-    onSound?.();
     setTimeout(() => setRunning(false), 260);
   };
 
@@ -67,7 +66,6 @@ export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
     try {
       await navigator.clipboard.writeText(body);
       setCopied(true);
-      onSound?.();
       setTimeout(() => setCopied(false), 2000);
     } catch {
       /* clipboard unavailable — the response is on screen to select manually */
@@ -139,10 +137,9 @@ export const Playground: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
             <label className="label" htmlFor="playground-request">Request body (JSON)</label>
             <textarea id="playground-request" className="request-editor mt-3" rows={6} spellCheck={false}
               value={request} onChange={event => { setRequest(event.target.value); setResult(null); }} />
-            <button type="button" className="file-button mt-3" onClick={() => {
-              setResult(simulateRequest(request, selected.response));
-              onSound?.();
-            }}>Run simulated request</button>
+            <button type="button" className="file-button mt-3" onClick={() => setResult(simulateRequest(request, selected.response))}>
+              Run simulated request
+            </button>
             <p className="mt-3" style={{ color: 'var(--text-3)', fontSize: 'var(--step--1)' }}>
               Runs only in your browser. No message is sent. Any JSON object is accepted; invalid JSON shows a simulated error.
             </p>

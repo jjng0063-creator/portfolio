@@ -157,8 +157,7 @@ src/
 │   ├── useSectionBands.ts     # Cached section positions for the render loop
 │   ├── useEmerge.ts           # Opts an element into the lift-out motion
 │   ├── useScrollSpy.ts        # IntersectionObserver-based nav highlighting
-│   ├── useTheme.ts            # Light/dark, follows the OS until you choose
-│   └── useSoundEffects.ts     # Web Audio synth, off by default
+│   └── useTheme.ts            # Light/dark, follows the OS until you choose
 ├── lib/emerge.ts              # Shared rAF scheduler for the card motion
 ├── data/
 │   ├── content.json           # ← all content (what the admin panel writes)
@@ -313,9 +312,6 @@ value, look at both.
 **Cards settle to no transform at all.** Once a card finishes emerging, every
 transform is removed rather than left at `scale(1)`, so text renders on the pixel
 grid instead of through a composited layer.
-
-**Sound is off by default** and attached only to deliberate actions — never to
-hover or scroll.
 
 ---
 

@@ -4,7 +4,7 @@ import { PORTFOLIO_DATA } from '../../data/portfolioData';
 import { Button } from '../ui/Button';
 import { GithubIcon, LinkedinIcon } from '../ui/Icons';
 
-export const Hero: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
+export const Hero: React.FC = () => {
   const { profile } = PORTFOLIO_DATA;
   const [copied, setCopied] = useState(false);
 
@@ -12,7 +12,6 @@ export const Hero: React.FC<{ onSound?: () => void }> = ({ onSound }) => {
     try {
       await navigator.clipboard.writeText(profile.email);
       setCopied(true);
-      onSound?.();
       setTimeout(() => setCopied(false), 2200);
     } catch {
       window.location.href = `mailto:${profile.email}`;

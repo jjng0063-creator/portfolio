@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, Sun, Moon, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import { Menu, X, Sun, Moon, Pause, Play } from 'lucide-react';
 import { NAV_SECTIONS, PORTFOLIO_DATA } from '../../data/portfolioData';
 import { useScrollSpy } from '../../hooks/useScrollSpy';
 import type { ThemeMode } from '../../hooks/useTheme';
@@ -9,8 +9,6 @@ interface HeaderProps {
   onToggleMotion: () => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
-  soundEnabled: boolean;
-  onToggleSound: () => void;
 }
 
 const SECTION_IDS = NAV_SECTIONS.map((s) => s.id);
@@ -19,8 +17,6 @@ export const Header: React.FC<HeaderProps> = ({
   motionEnabled, onToggleMotion,
   theme,
   onToggleTheme,
-  soundEnabled,
-  onToggleSound,
 }) => {
   const activeId = useScrollSpy(SECTION_IDS);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -112,13 +108,6 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1.5 shrink-0">
             <IconButton onClick={onToggleMotion} label={motionEnabled ? 'Reduce motion' : 'Enable motion'} active={!motionEnabled}>
               {motionEnabled ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            </IconButton>
-            <IconButton
-              onClick={onToggleSound}
-              label={soundEnabled ? 'Mute interface sounds' : 'Enable interface sounds'}
-              active={soundEnabled}
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </IconButton>
 
             <IconButton

@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IS_PLACEHOLDER, NAV_SECTIONS, PORTFOLIO_DATA, drawerFiles, itemId, type ProjectCategory } from './data/portfolioData';
 import { useTheme } from './hooks/useTheme';
-import { useSoundEffects } from './hooks/useSoundEffects';
 import { useSectionBands } from './hooks/useSectionBands';
 import { CabinetStage } from './components/cabinet/CabinetStage';
 import { Header } from './components/layout/Header';
@@ -24,7 +23,6 @@ export function App() {
   const motion = useMotion();
   const [projectFilter, setProjectFilter] = useState<'All' | ProjectCategory>('All');
   const { theme, toggleTheme } = useTheme();
-  const { soundEnabled, toggleSound, playPop, playSuccess } = useSoundEffects();
 
   // Section positions are measured once and cached, so the render loop can find
   // the focused section from scrollY alone without forcing layout every frame.
@@ -48,10 +46,6 @@ export function App() {
     [projectFilter]
   );
 
-  // Sound is attached only to deliberate actions — a click, a copy, a run.
-  const tick = useCallback(() => playPop(), [playPop]);
-  const confirm = useCallback(() => playSuccess(), [playSuccess]);
-
   return (
     <MotionContext.Provider value={motion.enabled}>
       {/* The cabinet: fixed behind the page, drawers driven by scroll position */}
@@ -73,15 +67,13 @@ export function App() {
           onToggleMotion={motion.toggle}
           theme={theme}
           onToggleTheme={toggleTheme}
-          soundEnabled={soundEnabled}
-          onToggleSound={toggleSound}
         />
 
         {/* Section order and names carried over from the previous portfolio.
             NAV_SECTIONS must list these in the same order — it drives the nav,
             the drawer numbering and the eyebrow number on each section. */}
         <main>
-          <Hero onSound={confirm} />
+          <Hero />
           <About />
           <Timeline
             id="studies"
@@ -97,10 +89,10 @@ export function App() {
             lead="Roles, what I was responsible for, and what came out of it."
             items={PORTFOLIO_DATA.experience}
           />
-          <Projects onSound={tick} filter={projectFilter} onFilterChange={setProjectFilter} />
+          <Projects filter={projectFilter} onFilterChange={setProjectFilter} />
           <Skills onRevealProject={() => flushSync(() => setProjectFilter('All'))} />
-          <Playground onSound={tick} />
-          <Contact onSound={confirm} />
+          <Playground />
+          <Contact />
         </main>
 
         <Footer />

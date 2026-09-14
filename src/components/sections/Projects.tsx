@@ -30,10 +30,9 @@ const COVER_ICONS = {
 type CarouselPosition = 'previous' | 'active' | 'next' | 'hidden';
 
 export const Projects: React.FC<{
-  onSound?: () => void;
   filter: 'All' | ProjectCategory;
   onFilterChange: (filter: 'All' | ProjectCategory) => void;
-}> = ({ onSound, filter, onFilterChange }) => {
+}> = ({ filter, onFilterChange }) => {
   const projects = useMemo(() => {
     const matches = filter === 'All'
       ? PORTFOLIO_DATA.projects
@@ -58,14 +57,13 @@ export const Projects: React.FC<{
   const viewerImage = useRef<HTMLImageElement>(null);
   const [zoom, setZoom] = useState<{ width: number; x: number; y: number } | null>(null);
 
-  const goTo = (index: number, playSound = true) => {
+  const goTo = (index: number) => {
     const next = Math.max(0, Math.min(index, projects.length - 1));
     if (next === activeIndex && selection.filter === filter) return;
     setSelection({ filter, index: next });
     if (window.location.hash.startsWith('#project-')) {
       window.history.replaceState(null, '', `#${itemId.project(projects[next].id)}`);
     }
-    if (playSound) onSound?.();
   };
 
   useEffect(() => {
@@ -142,10 +140,7 @@ export const Projects: React.FC<{
               <button
                 key={category}
                 type="button"
-                onClick={() => {
-                  onFilterChange(category);
-                  onSound?.();
-                }}
+                onClick={() => onFilterChange(category)}
                 aria-pressed={isActive}
                 className="px-3 py-1.5 rounded-full transition-colors duration-200"
                 style={{
