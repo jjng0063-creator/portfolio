@@ -150,8 +150,17 @@ export default function Admin() {
 
   /* --- save --------------------------------------------------------------- */
 
+  // Mirrors scripts/check.mjs: committing without these only fails the deploy.
+  const missingAlt: string[] = (data?.projects ?? [])
+    .filter(
+      (p: any) =>
+        (p.image && !p.imageAlt?.trim()) ||
+        (p.screenshots ?? []).some((s: any) => !s?.src?.trim() || !s?.alt?.trim())
+    )
+    .map((p: any) => p.title || 'Untitled project');
+
   const save = async () => {
-    if (!credentials) return;
+    if (!credentials || missingAlt.length) return;
     setSaving(true);
     setSaveError(null);
     try {
@@ -301,7 +310,7 @@ export default function Admin() {
               <Button variant="ghost" onClick={signOut}>
                 <LogOut className="size-4" />
               </Button>
-              <Button disabled={!dirty || saving} onClick={save}>
+              <Button disabled={!dirty || saving || missingAlt.length > 0} onClick={save}>
                 {saving ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
@@ -311,6 +320,21 @@ export default function Admin() {
               </Button>
             </div>
 
+            {missingAlt.length > 0 && (
+              <div
+                role="alert"
+                className="px-6 py-2"
+                style={{
+                  borderTop: '1px solid var(--border-accent)',
+                  backgroundColor: 'var(--accent-soft)',
+                  color: 'var(--accent-text)',
+                  fontSize: 'var(--step--1)',
+                }}
+              >
+                Publish is disabled until every image has a description. Missing in:{' '}
+                {missingAlt.join(', ')}.
+              </div>
+            )}
             {saveError && (
               <div
                 className="px-6 py-2"

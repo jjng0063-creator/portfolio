@@ -34,30 +34,43 @@ interface FieldProps {
   placeholder?: string;
 }
 
-export const TextField: React.FC<FieldProps & { type?: string; mono?: boolean }> = ({
-  path,
-  label,
-  hint,
-  placeholder,
-  type = 'text',
-  mono,
-}) => {
+export const TextField: React.FC<
+  FieldProps & { type?: string; mono?: boolean; required?: boolean | Path }
+> = ({ path, label, hint, placeholder, type = 'text', mono, required }) => {
   const [value, setValue] = useField<string>(path);
+  const { data } = useEditor();
   const id = useId();
+  // A path means "required only while that other field has a value".
+  const isRequired = Array.isArray(required) ? Boolean(getIn(data, required)) : Boolean(required);
+  const missing = isRequired && !value?.trim();
   return (
     <div>
       <Label htmlFor={id} hint={hint}>
         {label}
+        {isRequired && <span style={{ color: 'var(--accent-text)' }}> *</span>}
       </Label>
       <input
         id={id}
         type={type}
         className={mono ? 'font-mono' : undefined}
-        style={inputStyle}
+        style={missing ? { ...inputStyle, borderColor: 'var(--accent)' } : inputStyle}
         value={value ?? ''}
         placeholder={placeholder}
+        required={isRequired}
+        aria-invalid={missing || undefined}
+        aria-describedby={missing ? `${id}-required` : undefined}
         onChange={(e) => setValue(e.target.value)}
       />
+      {missing && (
+        <p
+          id={`${id}-required`}
+          role="alert"
+          className="mt-1"
+          style={{ fontSize: 'var(--step--2)', color: 'var(--accent-text)' }}
+        >
+          Required before you can publish.
+        </p>
+      )}
     </div>
   );
 };

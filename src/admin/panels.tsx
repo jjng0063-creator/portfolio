@@ -211,7 +211,7 @@ export const ProjectsPanel: React.FC = () => (
             title={(shot) => shot.alt || 'Screenshot'} blank={() => ({ src: '', alt: '' })}>
             {(shot) => <>
               <MediaField path={[...shot, 'src']} label="Gallery image" folder="work" accept="image/*" preview />
-              <TextField path={[...shot, 'alt']} label="Image description" hint="Required. Describe what this screen shows." />
+              <TextField path={[...shot, 'alt']} label="Image description" hint="Describe what this screen shows." required />
             </>}
           </Repeater>
 
@@ -226,7 +226,8 @@ export const ProjectsPanel: React.FC = () => (
           <TextField
             path={[...p, 'imageAlt']}
             label="Screenshot description"
-            hint="Required whenever there is a screenshot: say what it actually shows."
+            hint="Say what the screenshot actually shows."
+            required={[...p, 'image']}
           />
 
           <Row>
