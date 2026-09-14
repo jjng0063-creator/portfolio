@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import type { Band } from '../../hooks/useSectionBands';
 import type { DrawerDef, SceneTheme } from './CabinetScene';
+import { jumpTo } from '../../lib/jump';
 
 const CabinetScene = lazy(() => import('./CabinetScene'));
 
@@ -60,7 +61,7 @@ export const CabinetStage: React.FC<{
               <a className="label" href={`#${drawer.id}`}>{drawer.index} / {drawer.label}</a>
               <ul className="grid gap-1 mt-2">
                 {drawer.files.map(file => <li key={file.targetId}>
-                  <a href={`#${file.targetId}`} title={file.fullLabel || file.label} className="block py-1 underline-offset-4 hover:underline">{file.fullLabel || file.label}</a>
+                  <a href={`#${file.targetId}`} onClick={(e) => { if (jumpTo(file.targetId)) e.preventDefault(); }} title={file.fullLabel || file.label} className="block py-1 underline-offset-4 hover:underline">{file.fullLabel || file.label}</a>
                 </li>)}
               </ul>
             </div>)}

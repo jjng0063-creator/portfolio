@@ -154,6 +154,34 @@ test('response drafts follow reordered, deleted, and reloaded endpoints', async 
   }
 });
 
+test('jumping to an item never scrolls past the end of its section', async () => {
+  const { jumpTo } = await load('lib/jump.ts');
+  const saved = { getElementById: document.getElementById, innerHeight: window.innerHeight, scrollTo: window.scrollTo };
+  let scrolled;
+  const at = (top, bottom) => () => ({ top, bottom });
+  const itemAt = (top) => ({ getBoundingClientRect: at(top, top + 100), closest: () => section });
+  // Section spans 1000–2000 in a 800px viewport with 100px top padding.
+  const section = { getBoundingClientRect: at(1000, 2000) };
+  globalThis.getComputedStyle = () => ({ scrollPaddingTop: '100px', scrollPaddingBottom: '0px' });
+  Object.assign(window, { innerHeight: 800, scrollTo: (o) => { scrolled = o.top; } });
+  try {
+    document.getElementById = () => itemAt(1100);
+    assert.equal(jumpTo('first'), true);
+    assert.equal(scrolled, 1000, 'an early item still lands under the header');
+    document.getElementById = () => itemAt(1850);
+    jumpTo('last');
+    assert.equal(scrolled, 1200, 'the last item stops at the section end');
+    section.getBoundingClientRect = at(1000, 1400);
+    jumpTo('short');
+    assert.equal(scrolled, 900, 'a section shorter than the screen pins to its top');
+    assert.equal(window.location.hash, 'short');
+  } finally {
+    Object.assign(document, { getElementById: saved.getElementById });
+    Object.assign(window, { innerHeight: saved.innerHeight, scrollTo: saved.scrollTo, location: { hash: '' } });
+    delete globalThis.getComputedStyle;
+  }
+});
+
 test('cabinet folders match rendered projects after filtering and resetting', async () => {
   const { App } = await load('App.tsx');
   const { CabinetStage } = await load('components/cabinet/CabinetStage.tsx');

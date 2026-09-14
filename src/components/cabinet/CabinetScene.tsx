@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Band } from '../../hooks/useSectionBands';
 import { NAV_SECTIONS, type DrawerFile } from '../../data/portfolioData';
+import { jumpTo } from '../../lib/jump';
 
 /* ============================================================================
  * THE CABINET
@@ -617,12 +618,7 @@ const Cabinet: React.FC<CabinetProps> = ({ bands, drawers, theme, reduceMotion }
       e.stopPropagation();
 
       const target = drawers[drawer].files[file];
-      if (!target || !document.getElementById(target.targetId)) return;
-
-      // Setting the hash rather than calling scrollIntoView gets three things
-      // for free: the browser scrolls (honouring scroll-padding-top), :target
-      // highlights what you landed on, and the back button works.
-      window.location.hash = target.targetId;
+      if (target) jumpTo(target.targetId);
     },
     [drawers, isReachable]
   );
