@@ -56,13 +56,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header
-      className="sticky top-0 z-50 transition-colors duration-300"
-      style={{
-        backgroundColor: scrolled ? 'color-mix(in srgb, var(--bg) 82%, transparent)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(14px)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(14px)' : 'none',
-        borderBottom: `1px solid ${scrolled ? 'var(--border)' : 'transparent'}`,
-      }}
+      className="site-header sticky top-0 z-50"
+      data-scrolled={scrolled}
     >
       <div className="mx-auto w-full max-w-[76rem] px-[var(--gutter)]">
         <div className="h-16 flex items-center justify-between gap-4">

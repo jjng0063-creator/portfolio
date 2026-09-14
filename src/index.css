@@ -339,6 +339,35 @@
   );
 }
 
+/* The header's frosted strip sits on a layer behind its content, so the strip
+   can fade at the cabinet edge without fading the menu button with it. */
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
+.site-header[data-scrolled='true']::before {
+  opacity: 1;
+}
+
+/* With the cabinet in its own column, lines that run to that edge dissolve
+   into it instead of stopping dead. */
+@media (min-width: 1280px) {
+  .site-header::before,
+  .sprocket-rule {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 6rem), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 6rem), transparent);
+  }
+}
+
 .measure {
   max-width: var(--measure);
 }
